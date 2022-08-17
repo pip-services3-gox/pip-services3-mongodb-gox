@@ -8,7 +8,7 @@ import (
 
 	cconf "github.com/pip-services3-gox/pip-services3-commons-gox/config"
 	cdata "github.com/pip-services3-gox/pip-services3-commons-gox/data"
-	cerror "github.com/pip-services3-gox/pip-services3-commons-gox/errors"
+	cerr "github.com/pip-services3-gox/pip-services3-commons-gox/errors"
 	crefer "github.com/pip-services3-gox/pip-services3-commons-gox/refer"
 	clog "github.com/pip-services3-gox/pip-services3-components-gox/log"
 	cmpersist "github.com/pip-services3-gox/pip-services3-data-gox/persistence"
@@ -90,6 +90,12 @@ type MongoDbPersistence[T any] struct {
 	Db *mongodrv.Database
 	// The MongoDb collection object.
 	Collection *mongodrv.Collection
+
+	// Defines channel which closed before closing persistence and signals about terminating
+	// all going processes
+	//	!IMPORTANT if you do not Close existing query response the persistence can not be closed
+	//	see IsTerminated method
+	isTerminated chan struct{}
 }
 
 // InheritMongoDbPersistence are creates a new instance of the persistence component.
@@ -101,8 +107,9 @@ type MongoDbPersistence[T any] struct {
 // Returns: *MongoDbPersistence new created MongoDbPersistence component
 func InheritMongoDbPersistence[T any](overrides IMongoDbPersistenceOverrides[T], proto reflect.Type, collection string) *MongoDbPersistence[T] {
 	c := MongoDbPersistence[T]{
-		Overrides: overrides,
-		Prototype: proto,
+		Overrides:    overrides,
+		Prototype:    proto,
+		isTerminated: make(chan struct{}),
 	}
 	c.defaultConfig = *cconf.NewConfigParamsFromTuples(
 		"collection", "",
@@ -271,6 +278,21 @@ func (c *MongoDbPersistence[T]) IsOpen() bool {
 	return c.opened
 }
 
+// IsTerminated checks if the wee need to terminate process before close component.
+//
+//	Returns: true if you need terminate your processes.
+func (c *MongoDbPersistence[T]) IsTerminated() bool {
+	select {
+	case _, ok := <-c.isTerminated:
+		if !ok {
+			return true
+		}
+	default:
+		return false
+	}
+	return false
+}
+
 // Open method is opens the component.
 //
 //	Parameters:
@@ -282,6 +304,8 @@ func (c *MongoDbPersistence[T]) Open(ctx context.Context, correlationId string) 
 		return nil
 	}
 
+	c.isTerminated = make(chan struct{})
+
 	if c.Connection == nil {
 		c.Connection = c.createConnection(ctx)
 		c.localConnection = true
@@ -291,12 +315,12 @@ func (c *MongoDbPersistence[T]) Open(ctx context.Context, correlationId string) 
 	if c.localConnection {
 		err := c.Connection.Open(ctx, correlationId)
 		if err == nil && c.Connection == nil {
-			return cerror.NewInvalidStateError(correlationId, "NO_CONNECTION", "MongoDB connection is missing")
+			return cerr.NewInvalidStateError(correlationId, "NO_CONNECTION", "MongoDB connection is missing")
 		}
 	}
 
 	if !c.Connection.IsOpen() {
-		return cerror.NewConnectionError(correlationId, "CONNECT_FAILED", "MongoDB connection is not opened")
+		return cerr.NewConnectionError(correlationId, "CONNECT_FAILED", "MongoDB connection is not opened")
 	}
 
 	c.Client = c.Connection.GetConnection()
@@ -305,7 +329,7 @@ func (c *MongoDbPersistence[T]) Open(ctx context.Context, correlationId string) 
 	if c.Collection = c.Db.Collection(c.CollectionName); c.Collection == nil {
 		c.Db = nil
 		c.Client = nil
-		return cerror.NewConnectionError(correlationId, "CONNECT_FAILED", "Connection to mongodb failed")
+		return cerr.NewConnectionError(correlationId, "CONNECT_FAILED", "Connection to mongodb failed")
 	}
 
 	// Define database schema
@@ -317,7 +341,7 @@ func (c *MongoDbPersistence[T]) Open(ctx context.Context, correlationId string) 
 		if err != nil {
 			c.Db = nil
 			c.Client = nil
-			return cerror.NewConnectionError(correlationId, "CREATE_IDX_FAILED", "Recreate indexes failed").WithCause(err)
+			return cerr.NewConnectionError(correlationId, "CREATE_IDX_FAILED", "Recreate indexes failed").WithCause(err)
 		}
 		for _, v := range keys {
 			c.Logger.Debug(ctx, correlationId, "Created index %s for collection %s", v, c.CollectionName)
@@ -339,7 +363,7 @@ func (c *MongoDbPersistence[T]) Close(ctx context.Context, correlationId string)
 		return nil
 	}
 	if c.Connection == nil {
-		return cerror.NewInvalidStateError(correlationId, "NO_CONNECTION", "MongoDb connection is missing")
+		return cerr.NewInvalidStateError(correlationId, "NO_CONNECTION", "MongoDb connection is missing")
 	}
 
 	defer c.cleanUpConnection()
@@ -357,6 +381,7 @@ func (c *MongoDbPersistence[T]) cleanUpConnection() {
 	c.Client = nil
 	c.Db = nil
 	c.Collection = nil
+	close(c.isTerminated)
 }
 
 // Clear method are clears component state.
@@ -368,11 +393,11 @@ func (c *MongoDbPersistence[T]) cleanUpConnection() {
 func (c *MongoDbPersistence[T]) Clear(ctx context.Context, correlationId string) error {
 	// Return error if collection is not set
 	if c.CollectionName == "" {
-		return cerror.NewError("Collection name is not defined")
+		return cerr.NewError("Collection name is not defined")
 	}
 
 	if err := c.Collection.Drop(ctx); err != nil {
-		return cerror.NewConnectionError(correlationId, "CLEAR_FAILED", "Clear collection failed.").WithCause(err)
+		return cerr.NewConnectionError(correlationId, "CLEAR_FAILED", "Clear collection failed.").WithCause(err)
 	}
 	return nil
 }
@@ -415,8 +440,19 @@ func (c *MongoDbPersistence[T]) GetPageByFilter(ctx context.Context, correlation
 	}
 	defer cursor.Close(ctx)
 
+	if c.IsTerminated() {
+		return *cdata.NewEmptyDataPage[T](), cerr.
+			NewError("query terminated").
+			WithCorrelationId(correlationId)
+	}
+
 	items := make([]T, 0, 1)
 	for cursor.Next(ctx) {
+		if c.IsTerminated() {
+			return *cdata.NewEmptyDataPage[T](), cerr.
+				NewError("query terminated").
+				WithCorrelationId(correlationId)
+		}
 		docPointer := c.NewObjectByPrototype()
 		curErr := cursor.Decode(docPointer.Interface())
 		if curErr != nil {
@@ -430,6 +466,11 @@ func (c *MongoDbPersistence[T]) GetPageByFilter(ctx context.Context, correlation
 		c.Logger.Trace(ctx, correlationId, "Retrieved %d from %s", len(items), c.CollectionName)
 	}
 	if pagingEnabled {
+		if c.IsTerminated() {
+			return *cdata.NewEmptyDataPage[T](), cerr.
+				NewError("query terminated").
+				WithCorrelationId(correlationId)
+		}
 		docCount, _ := c.Collection.CountDocuments(ctx, filter)
 		return *cdata.NewDataPage[T](items, int(docCount)), nil
 	}
@@ -467,8 +508,18 @@ func (c *MongoDbPersistence[T]) GetListByFilter(ctx context.Context, correlation
 	defer cursor.Close(ctx)
 
 	items = make([]T, 0)
+	if c.IsTerminated() {
+		return nil, cerr.
+			NewError("query terminated").
+			WithCorrelationId(correlationId)
+	}
 
 	for cursor.Next(ctx) {
+		if c.IsTerminated() {
+			return nil, cerr.
+				NewError("query terminated").
+				WithCorrelationId(correlationId)
+		}
 		docPointer := c.NewObjectByPrototype()
 		curErr := cursor.Decode(docPointer.Interface())
 		if curErr != nil {

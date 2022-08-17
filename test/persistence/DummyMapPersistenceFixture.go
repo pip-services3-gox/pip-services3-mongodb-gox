@@ -104,7 +104,7 @@ func (c *DummyMapPersistenceFixture) TestCrudOperations(t *testing.T) {
 
 	// Get the deleted dummy
 	result, err = c.persistence.GetOneById(context.Background(), "", dummy1["Id"].(string))
-	assert.NotNil(t, err)
+	assert.Nil(t, err)
 	// Try to get item
 	assert.Nil(t, result)
 }

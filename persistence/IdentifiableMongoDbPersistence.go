@@ -116,6 +116,9 @@ func (c *IdentifiableMongoDbPersistence[T, K]) GetOneById(ctx context.Context, c
 
 	res := c.Collection.FindOne(ctx, filter)
 	if err := res.Err(); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return item, nil
+		}
 		return item, err
 	}
 
@@ -183,6 +186,9 @@ func (c *IdentifiableMongoDbPersistence[T, K]) Set(ctx context.Context, correlat
 
 	res := c.Collection.FindOneAndReplace(ctx, filter, newItem, &options)
 	if err := res.Err(); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return result, nil
+		}
 		return result, err
 	}
 
@@ -220,6 +226,9 @@ func (c *IdentifiableMongoDbPersistence[T, K]) Update(ctx context.Context, corre
 
 	res := c.Collection.FindOneAndUpdate(ctx, filter, update, &options)
 	if err := res.Err(); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return result, nil
+		}
 		return result, err
 	}
 
@@ -260,6 +269,9 @@ func (c *IdentifiableMongoDbPersistence[T, K]) UpdatePartially(ctx context.Conte
 
 	res := c.Collection.FindOneAndUpdate(ctx, filter, update, &options)
 	if err := res.Err(); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return item, nil
+		}
 		return item, err
 	}
 	c.Logger.Trace(ctx, correlationId, "Updated partially in %s with id = %s", c.Collection, id)
@@ -289,6 +301,9 @@ func (c *IdentifiableMongoDbPersistence[T, K]) DeleteById(ctx context.Context, c
 
 	res := c.Collection.FindOneAndDelete(ctx, filter)
 	if err := res.Err(); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return item, nil
+		}
 		return item, err
 	}
 

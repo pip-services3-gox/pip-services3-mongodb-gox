@@ -3,11 +3,11 @@ package persistence
 import (
 	"context"
 	"errors"
-	"reflect"
 
+	"github.com/jinzhu/copier"
 	cconf "github.com/pip-services3-gox/pip-services3-commons-gox/config"
+	cconv "github.com/pip-services3-gox/pip-services3-commons-gox/convert"
 	cdata "github.com/pip-services3-gox/pip-services3-commons-gox/data"
-	cmpersist "github.com/pip-services3-gox/pip-services3-data-gox/persistence"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	mngoptions "go.mongodb.org/mongo-driver/mongo/options"
@@ -54,24 +54,66 @@ import (
 //		- *:discovery:*:*:1.0        (optional) IDiscovery services
 //		- *:credential-store:*:*:1.0 (optional) Credential stores to resolve credentials
 //
-//	Example: TODO::add valid example
+// Example:
+//	type MyIdentifiableMongoDbPersistence struct {
+//		*persist.IdentifiableMongoDbPersistence[test_persistence.Dummy, string]
+//	}
+//
+//	func NewMyIdentifiableMongoDbPersistence() *MyIdentifiableMongoDbPersistence {
+//		c := &MyIdentifiableMongoDbPersistence{}
+//		c.IdentifiableMongoDbPersistence = persist.InheritIdentifiableMongoDbPersistence[test_persistence.Dummy, string](c, "dummies")
+//		return c
+//	}
+//
+//	func composeFilter(filter cdata.FilterParams) any {
+//		filterObj := bson.M{}
+//
+//		if name, ok := filter.GetAsNullableString("name"); ok {
+//			filterObj = bson.M{"name": name}
+//		}
+//
+//		return filterObj
+//	}
+//
+//	func (c *MyIdentifiableMongoDbPersistence) GetPageByFilter(ctx context.Context, correlationId string, filter cdata.FilterParams, paging cdata.PagingParams) (page cdata.DataPage[test_persistence.Dummy], err error) {
+//		return c.IdentifiableMongoDbPersistence.GetPageByFilter(ctx, correlationId, composeFilter(filter), paging,
+//			bson.M{"key": -1}, nil)
+//	}
+//
+//	func main() {
+//		persistence := NewMyIdentifiableMongoDbPersistence()
+//		persistence.Configure(context.Background(), config.NewConfigParamsFromTuples(
+//			"host", "localhost",
+//			"port", 27017,
+//		))
+//
+//		_ = persistence.Open(context.Background(), "123")
+//		page, err := persistence.GetPageByFilter(context.Background(), "123", *cdata.NewFilterParamsFromTuples("name", "ABC"), *cdata.NewEmptyPagingParams())
+//		fmt.Println(page) // Result: { id: "1", name: "ABC" }
+//
+//		err = persistence.DeleteByFilter(context.Background(), "123", "1")
+//	}
+//
 type IdentifiableMongoDbPersistence[T any, K any] struct {
-	MongoDbPersistence[T]
+	*MongoDbPersistence[T]
+
+	// Flag to turn on automated string ID generation
+	_autoGenerateId bool
 }
 
 // InheritIdentifiableMongoDbPersistence is creates a new instance of the persistence component.
 //
 //	Parameters:
-//		- proto reflect.Type of saved data, need for correct decode from DB
 //		- collection string (optional) a collection name.
 //	Returns: *IdentifiableMongoDbPersistence[T, K] new created IdentifiableMongoDbPersistence component
-func InheritIdentifiableMongoDbPersistence[T any, K any](overrides IMongoDbPersistenceOverrides[T], proto reflect.Type, collection string) *IdentifiableMongoDbPersistence[T, K] {
+func InheritIdentifiableMongoDbPersistence[T any, K any](overrides IMongoDbPersistenceOverrides[T], collection string) *IdentifiableMongoDbPersistence[T, K] {
 	if collection == "" {
 		panic("Collection name could not be nil")
 	}
 	c := IdentifiableMongoDbPersistence[T, K]{}
-	c.MongoDbPersistence = *InheritMongoDbPersistence[T](overrides, proto, collection)
+	c.MongoDbPersistence = InheritMongoDbPersistence(overrides, collection)
 	c.maxPageSize = 100
+	c._autoGenerateId = true
 	return &c
 }
 
@@ -112,7 +154,7 @@ func (c *IdentifiableMongoDbPersistence[T, K]) GetOneById(ctx context.Context, c
 	id K) (item T, err error) {
 
 	filter := bson.M{"_id": id}
-	docPointer := c.NewObjectByPrototype()
+	var docPointer T
 
 	res := c.Collection.FindOne(ctx, filter)
 	if err := res.Err(); err != nil {
@@ -122,14 +164,14 @@ func (c *IdentifiableMongoDbPersistence[T, K]) GetOneById(ctx context.Context, c
 		return item, err
 	}
 
-	if err := res.Decode(docPointer.Interface()); err != nil {
+	if err := res.Decode(&docPointer); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return item, nil
 		}
 		return item, err
 	}
 	c.Logger.Trace(ctx, correlationId, "Retrieved from %s by id = %s", c.CollectionName, id)
-	return c.Overrides.ConvertToPublic(docPointer), nil
+	return c.Overrides.ConvertToPublic(docPointer)
 }
 
 // Create was creates a data item.
@@ -141,18 +183,34 @@ func (c *IdentifiableMongoDbPersistence[T, K]) GetOneById(ctx context.Context, c
 //	Returns: result any, err error created item and error, if they are occurred
 func (c *IdentifiableMongoDbPersistence[T, K]) Create(ctx context.Context, correlationId string,
 	item T) (result T, err error) {
+	var defaultValue T
 
-	var newItem any
-	newItem = cmpersist.CloneObject(item, c.Prototype)
-	// Assign unique id if not exist
-	cmpersist.GenerateObjectId(&newItem)
-	newItem = c.Overrides.ConvertFromPublic(newItem)
+	newItem, err := c.Overrides.ConvertFromPublic(item)
+	if err != nil {
+		return defaultValue, err
+	}
+
+	// Assign unique id
+	newItem["_id"] = newItem["id"]
+	copier.Copy(newItem["_id"], newItem["id"])
+	delete(newItem, "id")
+
+	// Auto generate id
+	val, ok := newItem["_id"]
+	notEmpty, _ := cconv.BooleanConverter.ToNullableBoolean(val)
+	if (!ok || !notEmpty) && c._autoGenerateId {
+		newItem["_id"] = cdata.IdGenerator.NextLong()
+	}
+
 	res, err := c.Collection.InsertOne(ctx, newItem)
 	if err != nil {
 		return result, err
 	}
 
-	result = c.Overrides.ConvertToPublic(newItem)
+	result, err = c.Overrides.ConvertToPublic(newItem)
+	if err != nil {
+		return defaultValue, err
+	}
 
 	c.Logger.Trace(ctx, correlationId, "Created in %s with id = %s", c.Collection, res.InsertedID)
 
@@ -169,14 +227,26 @@ func (c *IdentifiableMongoDbPersistence[T, K]) Create(ctx context.Context, corre
 //	Returns: result any, err error updated item and error, if they occurred
 func (c *IdentifiableMongoDbPersistence[T, K]) Set(ctx context.Context, correlationId string,
 	item T) (result T, err error) {
+	var defaultValue T
 
-	var newItem any
-	newItem = cmpersist.CloneObject(item, c.Prototype)
-	// Assign unique id if not exist
-	cmpersist.GenerateObjectId(&newItem)
-	id := cmpersist.GetObjectId(newItem)
-	c.Overrides.ConvertFromPublic(newItem)
+	newItem, err := c.Overrides.ConvertFromPublic(item)
+	if err != nil {
+		return defaultValue, err
+	}
 
+	// Assign unique id
+	newItem["_id"] = newItem["id"]
+	copier.Copy(newItem["_id"], newItem["id"])
+	delete(newItem, "id")
+
+	// Auto generate id
+	val, ok := newItem["_id"]
+	notEmpty, _ := cconv.BooleanConverter.ToNullableBoolean(val)
+	if (!ok || !notEmpty) && c._autoGenerateId {
+		newItem["_id"] = cdata.IdGenerator.NextLong()
+	}
+
+	id := newItem["_id"]
 	filter := bson.M{"_id": id}
 	var options mngoptions.FindOneAndReplaceOptions
 	retDoc := mngoptions.After
@@ -193,15 +263,15 @@ func (c *IdentifiableMongoDbPersistence[T, K]) Set(ctx context.Context, correlat
 	}
 
 	c.Logger.Trace(ctx, correlationId, "Set in %s with id = %s", c.CollectionName, id)
-	docPointer := c.NewObjectByPrototype()
-	if err := res.Decode(docPointer.Interface()); err != nil {
+	var docPointer T
+	if err := res.Decode(&docPointer); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return result, nil
 		}
 		return result, err
 	}
 
-	return c.Overrides.ConvertToPublic(docPointer), nil
+	return c.Overrides.ConvertToPublic(docPointer)
 }
 
 // Update is updates a data item.
@@ -214,8 +284,11 @@ func (c *IdentifiableMongoDbPersistence[T, K]) Set(ctx context.Context, correlat
 func (c *IdentifiableMongoDbPersistence[T, K]) Update(ctx context.Context, correlationId string,
 	item T) (result T, err error) {
 
-	newItem := cmpersist.CloneObject(item, c.Prototype)
-	id := cmpersist.GetObjectId(newItem)
+	newItem, err := c.Overrides.ConvertFromPublic(item)
+	if err != nil {
+		return result, err
+	}
+	id := newItem["_id"]
 
 	filter := bson.M{"_id": id}
 	update := bson.D{{"$set", newItem}}
@@ -234,15 +307,15 @@ func (c *IdentifiableMongoDbPersistence[T, K]) Update(ctx context.Context, corre
 
 	c.Logger.Trace(ctx, correlationId, "Updated in %s with id = %s", c.CollectionName, id)
 
-	docPointer := c.NewObjectByPrototype()
-	if err := res.Decode(docPointer.Interface()); err != nil {
+	var docPointer T
+	if err := res.Decode(&docPointer); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return result, nil
 		}
 		return result, err
 	}
 
-	return c.Overrides.ConvertToPublic(docPointer), nil
+	return c.Overrides.ConvertToPublic(docPointer)
 }
 
 // UpdatePartially is updates only few selected fields in a data item.
@@ -276,15 +349,15 @@ func (c *IdentifiableMongoDbPersistence[T, K]) UpdatePartially(ctx context.Conte
 	}
 	c.Logger.Trace(ctx, correlationId, "Updated partially in %s with id = %s", c.Collection, id)
 
-	docPointer := c.NewObjectByPrototype()
-	if err := res.Decode(docPointer.Interface()); err != nil {
+	var docPointer T
+	if err := res.Decode(&docPointer); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return item, nil
 		}
 		return item, err
 	}
 
-	return c.Overrides.ConvertToPublic(docPointer), nil
+	return c.Overrides.ConvertToPublic(docPointer)
 }
 
 // DeleteById is deleted a data item by it's unique id.
@@ -309,15 +382,15 @@ func (c *IdentifiableMongoDbPersistence[T, K]) DeleteById(ctx context.Context, c
 
 	c.Logger.Trace(ctx, correlationId, "Deleted from %s with id = %s", c.CollectionName, id)
 
-	docPointer := c.NewObjectByPrototype()
-	if err := res.Decode(docPointer.Interface()); err != nil {
+	var docPointer T
+	if err := res.Decode(&docPointer); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return item, nil
 		}
 		return item, err
 	}
 
-	return c.Overrides.ConvertToPublic(docPointer), nil
+	return c.Overrides.ConvertToPublic(docPointer)
 }
 
 // DeleteByIds is deletes multiple data items by their unique ids.

@@ -2,7 +2,6 @@ package test_persistence
 
 import (
 	"context"
-	"reflect"
 
 	cdata "github.com/pip-services3-gox/pip-services3-commons-gox/data"
 	persist "github.com/pip-services3-gox/pip-services3-mongodb-gox/persistence"
@@ -10,15 +9,12 @@ import (
 )
 
 type DummyMapMongoDbPersistence struct {
-	persist.IdentifiableMongoDbPersistence[map[string]any, string]
+	*persist.IdentifiableMongoDbPersistence[map[string]any, string]
 }
 
 func NewDummyMapMongoDbPersistence() *DummyMapMongoDbPersistence {
-	var t map[string]any
-	proto := reflect.TypeOf(t)
-
 	c := &DummyMapMongoDbPersistence{}
-	c.IdentifiableMongoDbPersistence = *persist.InheritIdentifiableMongoDbPersistence[map[string]any, string](c, proto, "dummies")
+	c.IdentifiableMongoDbPersistence = persist.InheritIdentifiableMongoDbPersistence[map[string]any, string](c, "dummies")
 	return c
 }
 

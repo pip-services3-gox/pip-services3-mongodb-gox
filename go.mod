@@ -3,18 +3,17 @@ module github.com/pip-services3-gox/pip-services3-mongodb-gox
 go 1.18
 
 require (
+	github.com/jinzhu/copier v0.3.5
 	github.com/pip-services3-gox/pip-services3-commons-gox v1.0.6
 	github.com/pip-services3-gox/pip-services3-components-gox v1.0.6
-	github.com/pip-services3-gox/pip-services3-data-gox v1.0.6
 	github.com/stretchr/testify v1.8.0
-	go.mongodb.org/mongo-driver v1.10.2
+	go.mongodb.org/mongo-driver v1.10.3
 )
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/jinzhu/copier v0.3.5 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
 	github.com/pkg/errors v0.9.1 // indirect

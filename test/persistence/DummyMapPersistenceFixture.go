@@ -2,9 +2,10 @@ package test_persistence
 
 import (
 	"context"
+	"testing"
+
 	cdata "github.com/pip-services3-gox/pip-services3-commons-gox/data"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 type DummyMapPersistenceFixture struct {
@@ -31,7 +32,7 @@ func (c *DummyMapPersistenceFixture) TestCrudOperations(t *testing.T) {
 	}
 	dummy1 = result
 	assert.NotNil(t, dummy1)
-	assert.NotNil(t, dummy1["Id"])
+	assert.NotNil(t, dummy1["id"])
 	assert.Equal(t, c.dummy1["key"], dummy1["key"])
 	assert.Equal(t, c.dummy1["content"], dummy1["content"])
 
@@ -42,7 +43,7 @@ func (c *DummyMapPersistenceFixture) TestCrudOperations(t *testing.T) {
 	}
 	dummy2 = result
 	assert.NotNil(t, dummy2)
-	assert.NotNil(t, dummy2["Id"])
+	assert.NotNil(t, dummy2["id"])
 	assert.Equal(t, c.dummy2["key"], dummy2["key"])
 	assert.Equal(t, c.dummy2["content"], dummy2["content"])
 
@@ -66,44 +67,44 @@ func (c *DummyMapPersistenceFixture) TestCrudOperations(t *testing.T) {
 		t.Errorf("GetPageByFilter method error %v", err)
 	}
 	assert.NotNil(t, result)
-	assert.Equal(t, dummy1["Id"], result["Id"])
+	assert.Equal(t, dummy1["id"], result["id"])
 	assert.Equal(t, dummy1["key"], result["key"])
 	assert.Equal(t, dummy1["content"], result["content"])
 
 	// Partially update the dummy
 	updateMap := *cdata.NewAnyValueMapFromTuples("content", "Partially Updated Content 1")
-	result, err = c.persistence.UpdatePartially(context.Background(), "", dummy1["Id"].(string), updateMap)
+	result, err = c.persistence.UpdatePartially(context.Background(), "", dummy1["id"].(string), updateMap)
 	if err != nil {
 		t.Errorf("UpdatePartially method error %v", err)
 	}
 	assert.NotNil(t, result)
-	assert.Equal(t, dummy1["Id"], result["Id"])
+	assert.Equal(t, dummy1["id"], result["id"])
 	assert.Equal(t, dummy1["key"], result["key"])
 	assert.Equal(t, "Partially Updated Content 1", result["content"])
 
 	// Get the dummy by Id
-	result, err = c.persistence.GetOneById(context.Background(), "", dummy1["Id"].(string))
+	result, err = c.persistence.GetOneById(context.Background(), "", dummy1["id"].(string))
 	if err != nil {
 		t.Errorf("GetOneById method error %v", err)
 	}
 	// Try to get item
 	assert.NotNil(t, result)
-	assert.Equal(t, dummy1["Id"], result["Id"])
+	assert.Equal(t, dummy1["id"], result["id"])
 	assert.Equal(t, dummy1["key"], result["key"])
 	assert.Equal(t, "Partially Updated Content 1", result["content"])
 
 	// Delete the dummy
-	result, err = c.persistence.DeleteById(context.Background(), "", dummy1["Id"].(string))
+	result, err = c.persistence.DeleteById(context.Background(), "", dummy1["id"].(string))
 	if err != nil {
 		t.Errorf("DeleteById method error %v", err)
 	}
 	assert.NotNil(t, result)
-	assert.Equal(t, dummy1["Id"], result["Id"])
+	assert.Equal(t, dummy1["id"], result["id"])
 	assert.Equal(t, dummy1["key"], result["key"])
 	assert.Equal(t, "Partially Updated Content 1", result["content"])
 
 	// Get the deleted dummy
-	result, err = c.persistence.GetOneById(context.Background(), "", dummy1["Id"].(string))
+	result, err = c.persistence.GetOneById(context.Background(), "", dummy1["id"].(string))
 	assert.Nil(t, err)
 	// Try to get item
 	assert.Nil(t, result)
@@ -120,7 +121,7 @@ func (c *DummyMapPersistenceFixture) TestBatchOperations(t *testing.T) {
 	}
 	dummy1 = result
 	assert.NotNil(t, dummy1)
-	assert.NotNil(t, dummy1["Id"])
+	assert.NotNil(t, dummy1["id"])
 	assert.Equal(t, c.dummy1["key"], dummy1["key"])
 	assert.Equal(t, c.dummy1["content"], dummy1["content"])
 
@@ -131,12 +132,12 @@ func (c *DummyMapPersistenceFixture) TestBatchOperations(t *testing.T) {
 	}
 	dummy2 = result
 	assert.NotNil(t, dummy2)
-	assert.NotNil(t, dummy2["Id"])
+	assert.NotNil(t, dummy2["id"])
 	assert.Equal(t, c.dummy2["key"], dummy2["key"])
 	assert.Equal(t, c.dummy2["content"], dummy2["content"])
 
 	// Read batch
-	items, err := c.persistence.GetListByIds(context.Background(), "", []string{dummy1["Id"].(string), dummy2["Id"].(string)})
+	items, err := c.persistence.GetListByIds(context.Background(), "", []string{dummy1["id"].(string), dummy2["id"].(string)})
 	if err != nil {
 		t.Errorf("GetListByIds method error %v", err)
 	}
@@ -145,14 +146,14 @@ func (c *DummyMapPersistenceFixture) TestBatchOperations(t *testing.T) {
 	assert.Len(t, items, 2)
 
 	// Delete batch
-	err = c.persistence.DeleteByIds(context.Background(), "", []string{dummy1["Id"].(string), dummy2["Id"].(string)})
+	err = c.persistence.DeleteByIds(context.Background(), "", []string{dummy1["id"].(string), dummy2["id"].(string)})
 	if err != nil {
 		t.Errorf("DeleteByIds method error %v", err)
 	}
 	assert.Nil(t, err)
 
 	// Read empty batch
-	items, err = c.persistence.GetListByIds(context.Background(), "", []string{dummy1["Id"].(string), dummy2["Id"].(string)})
+	items, err = c.persistence.GetListByIds(context.Background(), "", []string{dummy1["id"].(string), dummy2["id"].(string)})
 	if err != nil {
 		t.Errorf("GetListByIds method error %v", err)
 	}

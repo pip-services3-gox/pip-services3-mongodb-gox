@@ -3,26 +3,26 @@ package persistence
 import (
 	"context"
 	"math/rand"
-	"reflect"
+	"strings"
 	"time"
 
+	"github.com/jinzhu/copier"
 	cconf "github.com/pip-services3-gox/pip-services3-commons-gox/config"
+	cconv "github.com/pip-services3-gox/pip-services3-commons-gox/convert"
 	cdata "github.com/pip-services3-gox/pip-services3-commons-gox/data"
 	cerr "github.com/pip-services3-gox/pip-services3-commons-gox/errors"
 	crefer "github.com/pip-services3-gox/pip-services3-commons-gox/refer"
 	clog "github.com/pip-services3-gox/pip-services3-components-gox/log"
-	cmpersist "github.com/pip-services3-gox/pip-services3-data-gox/persistence"
 	conn "github.com/pip-services3-gox/pip-services3-mongodb-gox/connect"
 	mongodrv "go.mongodb.org/mongo-driver/mongo"
-	mngoptions "go.mongodb.org/mongo-driver/mongo/options"
 	mongoopt "go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type IMongoDbPersistenceOverrides[T any] interface {
 	DefineSchema()
-	ConvertFromPublic(item any) any
-	ConvertFromPublicPartial(item T) any
-	ConvertToPublic(item any) T
+	ConvertFromPublic(item T) (map[string]any, error)
+	ConvertFromPublicPartial(item T) (map[string]any, error)
+	ConvertToPublic(item any) (T, error)
 }
 
 // MongoDbPersistence abstract persistence component that stores data in MongoDB using plain driver.
@@ -61,13 +61,75 @@ type IMongoDbPersistenceOverrides[T any] interface {
 //		- *:discovery:*:*:1.0        (optional) IDiscovery services
 //		- *:credential-store:*:*:1.0 (optional) Credential stores to resolve credentials
 //
-// Example: TODO::add valid example
+// Example:
+//	type MyMongoDbPersistence struct {
+//		*persistence.MongoDbPersistence[MyData]
+//	}
+//
+//	func NewMyMongoDbPersistence() *MyMongoDbPersistence {
+//		c := &MyMongoDbPersistence{}
+//		c.MongoDbPersistence = persistence.InheritMongoDbPersistence[MyData](c, "my_data")
+//		return c
+//	}
+//
+//	func (c *MyMongoDbPersistence) GetByName(ctx context.Context, correlationId string, name string) (count int64, err error) {
+//		return c.MongoDbPersistence.GetCountByFilter(ctx, correlationId, bson.M{"name": name})
+//	}
+//
+//	func (c *MyMongoDbPersistence) Set(ctx context.Context, correlationId string,
+//		item MyData) (result MyData, err error) {
+//		var defaultValue MyData
+//
+//		newItem, err := c.Overrides.ConvertFromPublic(item)
+//		if err != nil {
+//			return defaultValue, err
+//		}
+//
+//		id := newItem["_id"]
+//		filter := bson.M{"_id": id}
+//		var options mngoptions.FindOneAndReplaceOptions
+//		retDoc := mngoptions.After
+//		options.ReturnDocument = &retDoc
+//		upsert := true
+//		options.Upsert = &upsert
+//
+//		res := c.Collection.FindOneAndReplace(ctx, filter, newItem, &options)
+//		if err := res.Err(); err != nil {
+//			if errors.Is(err, mongo.ErrNoDocuments) {
+//				return result, nil
+//			}
+//			return result, err
+//		}
+//
+//		c.Logger.Trace(ctx, correlationId, "Set in %s with id = %s", c.CollectionName, id)
+//		var docPointer MyData
+//		if err := res.Decode(&docPointer); err != nil {
+//			if errors.Is(err, mongo.ErrNoDocuments) {
+//				return result, nil
+//			}
+//			return result, err
+//		}
+//
+//		return c.Overrides.ConvertToPublic(docPointer)
+//	}
+//
+//	func main() {
+//		persistence := NewMyMongoDbPersistence()
+//		persistence.Configure(context.Background(), config.NewConfigParamsFromTuples(
+//			"host", "localhost",
+//			"port", 27017,
+//		))
+//
+//		_ = persistence.Open(context.Background(), "123")
+//		persistence.Set(context.Background(), "123", MyData{Id: "123", Name: "ABC"})
+//		item, err := persistence.GetByName(context.Background(), "123", "ABC")
+//		fmt.Println(item) // Result: { name: "ABC" }
+//	}
 type MongoDbPersistence[T any] struct {
 	Overrides IMongoDbPersistenceOverrides[T]
-	Prototype reflect.Type
 
-	defaultConfig   cconf.ConfigParams
-	config          cconf.ConfigParams
+	defaultConfig   *cconf.ConfigParams
+	config          *cconf.ConfigParams
 	references      crefer.IReferences
 	opened          bool
 	localConnection bool
@@ -75,7 +137,7 @@ type MongoDbPersistence[T any] struct {
 	maxPageSize     int32
 
 	// The dependency resolver.
-	DependencyResolver crefer.DependencyResolver
+	DependencyResolver *crefer.DependencyResolver
 	// The logger.
 	Logger clog.CompositeLogger
 	// The MongoDB connection component.
@@ -96,22 +158,25 @@ type MongoDbPersistence[T any] struct {
 	//	!IMPORTANT if you do not Close existing query response the persistence can not be closed
 	//	see IsTerminated method
 	isTerminated chan struct{}
+
+	// Defines general JSON convertors
+	JsonConvertor    cconv.IJSONEngine[T]
+	JsonMapConvertor cconv.IJSONEngine[map[string]any]
 }
 
 // InheritMongoDbPersistence are creates a new instance of the persistence component.
 //
 //	Parameters:
-//		- proto reflect.Type type of saved data, need for correct decode from DB
+//		- overrides IMongoDbPersistenceOverrides overrided mongodb persistence
 //		- collection  string a collection name.
 //
 // Returns: *MongoDbPersistence new created MongoDbPersistence component
-func InheritMongoDbPersistence[T any](overrides IMongoDbPersistenceOverrides[T], proto reflect.Type, collection string) *MongoDbPersistence[T] {
+func InheritMongoDbPersistence[T any](overrides IMongoDbPersistenceOverrides[T], collection string) *MongoDbPersistence[T] {
 	c := MongoDbPersistence[T]{
 		Overrides:    overrides,
-		Prototype:    proto,
 		isTerminated: make(chan struct{}),
 	}
-	c.defaultConfig = *cconf.NewConfigParamsFromTuples(
+	c.defaultConfig = cconf.NewConfigParamsFromTuples(
 		"collection", "",
 		"dependencies.connection", "*:connection:mongodb:*:1.0",
 		"options.max_pool_size", "2",
@@ -121,11 +186,13 @@ func InheritMongoDbPersistence[T any](overrides IMongoDbPersistenceOverrides[T],
 		"options.max_page_size", "100",
 		"options.debug", "true",
 	)
-	c.DependencyResolver = *crefer.NewDependencyResolverWithParams(context.Background(), &c.defaultConfig, c.references)
+	c.DependencyResolver = crefer.NewDependencyResolverWithParams(context.Background(), c.defaultConfig, c.references)
 	c.Logger = *clog.NewCompositeLogger()
 	c.CollectionName = collection
 	c.indexes = make([]mongodrv.IndexModel, 0, 10)
-	c.config = *cconf.NewEmptyConfigParams()
+	c.config = cconf.NewEmptyConfigParams()
+	c.JsonConvertor = cconv.NewDefaultCustomTypeJsonConvertor[T]()
+	c.JsonMapConvertor = cconv.NewDefaultCustomTypeJsonConvertor[map[string]any]()
 
 	return &c
 }
@@ -136,8 +203,8 @@ func InheritMongoDbPersistence[T any](overrides IMongoDbPersistenceOverrides[T],
 //		- ctx context.Context
 //		- config  *cconf.ConfigParams configuration parameters to be set.
 func (c *MongoDbPersistence[T]) Configure(ctx context.Context, config *cconf.ConfigParams) {
-	config = config.SetDefaults(&c.defaultConfig)
-	c.config = *config
+	config = config.SetDefaults(c.defaultConfig)
+	c.config = config
 	c.DependencyResolver.Configure(ctx, config)
 	c.CollectionName = config.GetAsStringWithDefault("collection", c.CollectionName)
 }
@@ -172,7 +239,7 @@ func (c *MongoDbPersistence[T]) UnsetReferences() {
 
 func (c *MongoDbPersistence[T]) createConnection(ctx context.Context) *conn.MongoDbConnection {
 	connection := conn.NewMongoDbConnection()
-	connection.Configure(ctx, &c.config)
+	connection.Configure(ctx, c.config)
 	if c.references != nil {
 		connection.SetReferences(ctx, c.references)
 	}
@@ -205,32 +272,35 @@ func (c *MongoDbPersistence[T]) EnsureIndex(keys any, options *mongoopt.IndexOpt
 //
 //	Parameters:
 //		- item *any converted item
-func (c *MongoDbPersistence[T]) ConvertFromPublic(item any) any {
-	var value any = item
-	var t reflect.Type = reflect.TypeOf(item)
-
-	if reflect.TypeOf(item).Kind() == reflect.Ptr {
-		value = reflect.ValueOf(item).Elem().Interface()
-		t = reflect.ValueOf(item).Elem().Type()
+func (c *MongoDbPersistence[T]) ConvertFromPublic(value T) (map[string]any, error) {
+	buf, toJsonErr := cconv.JsonConverter.ToJson(value)
+	if toJsonErr != nil {
+		return nil, toJsonErr
 	}
 
-	if t.Kind() == reflect.Map {
-		m, ok := value.(map[string]any)
-		if ok {
-			m["_id"] = m["Id"]
-			delete(m, "Id")
+	convertedItem, fromJsonErr := c.JsonMapConvertor.FromJson(buf)
 
-		}
+	item := make(map[string]any, len(convertedItem))
+
+	// all keys to lower case
+	for k, v := range convertedItem {
+		item[strings.ToLower(k)] = v
 	}
 
-	return item
+	if _, ok := item["id"]; ok {
+		item["_id"] = item["id"]
+		copier.Copy(item["_id"], item["id"])
+		delete(item, "id")
+	}
+
+	return item, fromJsonErr
 }
 
 // ConvertFromPublicPartial method help convert object (map) from public view by replaced "Id" to "_id" field
 //
 //	Parameters:
 //		- item *any converted item
-func (c *MongoDbPersistence[T]) ConvertFromPublicPartial(item T) any {
+func (c *MongoDbPersistence[T]) ConvertFromPublicPartial(item T) (map[string]any, error) {
 	return c.ConvertFromPublic(item)
 }
 
@@ -238,37 +308,23 @@ func (c *MongoDbPersistence[T]) ConvertFromPublicPartial(item T) any {
 //
 //	Parameters:
 //		- item *any converted item
-func (c *MongoDbPersistence[T]) ConvertToPublic(value any) T {
+func (c *MongoDbPersistence[T]) ConvertToPublic(value any) (T, error) {
 	var defaultValue T
-	if value == nil {
-		return defaultValue
+
+	if m, ok := value.(map[string]any); ok {
+		m["id"] = m["_id"]
+		copier.Copy(m["id"], m["_id"])
+		delete(m, "_id")
 	}
 
-	docPointer, ok := value.(reflect.Value)
-	if !ok {
-		if c.Prototype.Kind() == reflect.Ptr {
-			docPointer = reflect.New(c.Prototype.Elem())
-		} else {
-			docPointer = reflect.New(c.Prototype)
-		}
-		docPointer.Elem().Set(reflect.ValueOf(value))
+	jsonBuf, toJsonErr := cconv.JsonConverter.ToJson(value)
+	if toJsonErr != nil {
+		return defaultValue, toJsonErr
 	}
 
-	item := docPointer.Elem().Interface()
+	item, fromJsonErr := c.JsonConvertor.FromJson(jsonBuf)
 
-	if reflect.TypeOf(item).Kind() == reflect.Map {
-		m, ok := item.(map[string]any)
-		if ok {
-			m["Id"] = m["_id"]
-			delete(m, "_id")
-		}
-
-	}
-
-	if c.Prototype.Kind() == reflect.Ptr {
-		return docPointer.Interface().(T)
-	}
-	return item.(T)
+	return item, fromJsonErr
 }
 
 // IsOpen method is checks if the component is opened.
@@ -422,7 +478,7 @@ func (c *MongoDbPersistence[T]) GetPageByFilter(ctx context.Context, correlation
 	take := paging.GetTake((int64)(c.maxPageSize))
 	pagingEnabled := paging.Total
 	// Configure options
-	var options mngoptions.FindOptions
+	var options mongoopt.FindOptions
 	if skip >= 0 {
 		options.Skip = &skip
 	}
@@ -453,13 +509,18 @@ func (c *MongoDbPersistence[T]) GetPageByFilter(ctx context.Context, correlation
 				NewError("query terminated").
 				WithCorrelationId(correlationId)
 		}
-		docPointer := c.NewObjectByPrototype()
-		curErr := cursor.Decode(docPointer.Interface())
+		var docPointer T
+
+		curErr := cursor.Decode(&docPointer)
+
 		if curErr != nil {
 			continue
 		}
 
-		item := c.Overrides.ConvertToPublic(docPointer)
+		item, err := c.Overrides.ConvertToPublic(docPointer)
+		if err != nil {
+			return page, err
+		}
 		items = append(items, item)
 	}
 	if items != nil {
@@ -472,9 +533,9 @@ func (c *MongoDbPersistence[T]) GetPageByFilter(ctx context.Context, correlation
 				WithCorrelationId(correlationId)
 		}
 		docCount, _ := c.Collection.CountDocuments(ctx, filter)
-		return *cdata.NewDataPage[T](items, int(docCount)), nil
+		return *cdata.NewDataPage(items, int(docCount)), nil
 	}
-	return *cdata.NewDataPage[T](items, cdata.EmptyTotalValue), nil
+	return *cdata.NewDataPage(items, cdata.EmptyTotalValue), nil
 }
 
 // GetListByFilter is gets a list of data items retrieved by a given filter and sorted according to sort parameters.
@@ -492,7 +553,7 @@ func (c *MongoDbPersistence[T]) GetListByFilter(ctx context.Context, correlation
 	filter any, sort any, sel any) (items []T, err error) {
 
 	// Configure options
-	var options mngoptions.FindOptions
+	var options mongoopt.FindOptions
 
 	if sort != nil {
 		options.Sort = sort
@@ -520,13 +581,16 @@ func (c *MongoDbPersistence[T]) GetListByFilter(ctx context.Context, correlation
 				NewError("query terminated").
 				WithCorrelationId(correlationId)
 		}
-		docPointer := c.NewObjectByPrototype()
-		curErr := cursor.Decode(docPointer.Interface())
+		var docPointer T
+		curErr := cursor.Decode(&docPointer)
 		if curErr != nil {
 			continue
 		}
 
-		item := c.Overrides.ConvertToPublic(docPointer)
+		item, err := c.Overrides.ConvertToPublic(docPointer)
+		if err != nil {
+			return items, nil
+		}
 		items = append(items, item)
 	}
 
@@ -553,7 +617,7 @@ func (c *MongoDbPersistence[T]) GetOneRandom(ctx context.Context, correlationId 
 		return item, err
 	}
 
-	var options mngoptions.FindOptions
+	var options mongoopt.FindOptions
 	rand.Seed(time.Now().UnixNano())
 	var itemNum int64 = rand.Int63n(docCount)
 	var itemLim int64 = 1
@@ -570,14 +634,14 @@ func (c *MongoDbPersistence[T]) GetOneRandom(ctx context.Context, correlationId 
 	}
 	defer cursor.Close(ctx)
 
-	docPointer := c.NewObjectByPrototype()
+	var docPointer T
 	cursor.Next(ctx)
-	err = cursor.Decode(docPointer.Interface())
+	err = cursor.Decode(&docPointer)
 	if err != nil {
 		return item, err
 	}
 
-	return c.Overrides.ConvertToPublic(docPointer), nil
+	return c.Overrides.ConvertToPublic(docPointer)
 }
 
 // Create was creates a data item.
@@ -588,17 +652,19 @@ func (c *MongoDbPersistence[T]) GetOneRandom(ctx context.Context, correlationId 
 //		- item any an item to be created.
 //	Returns: result any, err error created item and error, if they are occurred
 func (c *MongoDbPersistence[T]) Create(ctx context.Context, correlationId string, item T) (result T, err error) {
-
-	var newItem any
-	newItem = cmpersist.CloneObject(item, c.Prototype)
-	newItem = c.Overrides.ConvertFromPublic(newItem)
-
+	newItem, err := c.Overrides.ConvertFromPublic(item)
+	if err != nil {
+		return result, err
+	}
 	insRes, err := c.Collection.InsertOne(ctx, newItem)
 	if err != nil {
 		return result, err
 	}
 
-	result = c.Overrides.ConvertToPublic(newItem)
+	result, err = c.Overrides.ConvertToPublic(newItem)
+	if err != nil {
+		return result, err
+	}
 	c.Logger.Trace(ctx, correlationId, "Created in %s with id = %s", c.Collection, insRes.InsertedID)
 	return result, nil
 }
@@ -633,20 +699,11 @@ func (c *MongoDbPersistence[T]) DeleteByFilter(ctx context.Context, correlationI
 func (c *MongoDbPersistence[T]) GetCountByFilter(ctx context.Context, correlationId string, filter any) (count int64, err error) {
 
 	// Configure options
-	var options mngoptions.CountOptions
+	var options mongoopt.CountOptions
 	count, err = c.Collection.CountDocuments(ctx, filter, &options)
 	if err != nil {
 		return 0, err
 	}
 	c.Logger.Trace(ctx, correlationId, "Find %d items in %s", count, c.CollectionName)
 	return count, nil
-}
-
-// NewObjectByPrototype is a service function for return pointer on new prototype object for unmarshalling
-func (c *MongoDbPersistence[T]) NewObjectByPrototype() reflect.Value {
-	proto := c.Prototype
-	if proto.Kind() == reflect.Ptr {
-		proto = proto.Elem()
-	}
-	return reflect.New(proto)
 }

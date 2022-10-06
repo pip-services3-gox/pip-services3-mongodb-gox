@@ -6,18 +6,18 @@ Client was based on [official mongodb go driver](https://github.com/mongodb/mong
 [Official docs](https://docs.mongodb.com/ecosystem/drivers/go/) for MongoDb Go driver
 
 The module contains the following packages:
-- [**Build**](https://godoc.org/github.com/pip-services3-gox/pip-services3-mongodb-gox/build) -  Factory to create MongoDB persistence components.
-- [**Connect**](https://godoc.org/github.com/pip-services3-gox/pip-services3-mongodb-gox/connect) - Connection component to configure MongoDB connection to database.
-- [**Persistence**](https://godoc.org/github.com/pip-services3-gox/pip-services3-mongodb-gox/persistence) - abstract persistence components to perform basic CRUD operations.
+- **Build** -  Factory to create MongoDB persistence components.
+- **Connect** - Connection component to configure MongoDB connection to database.
+- **Persistence** - abstract persistence components to perform basic CRUD operations.
 
 <a name="links"></a> Quick links:
 
-* [MongoDB persistence](https://www.pipservices.org/recipies/mongodb-persistence)
-* [Configuration](https://www.pipservices.org/recipies/configuration)
+* [MongoDB persistence](http://docs.pipservices.org/getting_started/recipes/mongodb_persistence/)
+* [Configuration](http://docs.pipservices.org/concepts/configuration/)
 * [API Reference](https://godoc.org/github.com/pip-services3-gox/pip-services3-mongodb-gox/)
 * [Change Log](CHANGELOG.md)
-* [Get Help](https://www.pipservices.org/community/help)
-* [Contribute](https://www.pipservices.org/community/contribute)
+* [Get Help](http://docs.pipservices.org/get_help/)
+* [Contribute](http://docs.pipservices.org/contribute/)
 
 ## Use
 

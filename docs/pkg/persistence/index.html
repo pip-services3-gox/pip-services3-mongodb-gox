@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#375EAB">
+
+  <title>persistence - Go Documentation Server</title>
+
+<link type="text/css" rel="stylesheet" href="../../lib/godoc/style.css">
+
+<script>window.initFuncs = [];</script>
+<script src="../../lib/godoc/jquery.js" defer></script>
+
+
+
+<script>var goVersion = "go1.18.7";</script>
+<script src="../../lib/godoc/godocs.js" defer></script>
+</head>
+<body>
+
+<div id='lowframe' style="position: fixed; bottom: 0; left: 0; height: 0; width: 100%; border-top: thin solid grey; background-color: white; overflow: auto;">
+...
+</div><!-- #lowframe -->
+
+<div id="topbar" class="wide"><div class="container">
+<div class="top-heading" id="heading-wide"><a href="../index.html">Go Documentation Server</a></div>
+<div class="top-heading" id="heading-narrow"><a href="../index.html">GoDoc</a></div>
+<a href="index.html#" id="menu-button"><span id="menu-button-arrow">&#9661;</span></a>
+<form method="GET" action="http://localhost:6060/search">
+<div id="menu">
+
+<span class="search-box"><input type="search" id="search" name="q" placeholder="Search" aria-label="Search" required><button type="submit"><span><!-- magnifying glass: --><svg width="24" height="24" viewBox="0 0 24 24"><title>submit search</title><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/><path d="M0 0h24v24H0z" fill="none"/></svg></span></button></span>
+</div>
+</form>
+
+</div></div>
+
+
+
+<div id="page" class="wide">
+<div class="container">
+
+
+  <h1>
+    Package persistence
+    <span class="text-muted"></span>
+  </h1>
+
+
+
+
+
+
+
+<div id="nav"></div>
+
+
+<!--
+	Copyright 2009 The Go Authors. All rights reserved.
+	Use of this source code is governed by a BSD-style
+	license that can be found in the LICENSE file.
+-->
+<!--
+	Note: Static (i.e., not template-generated) href and id
+	attributes start with "pkg-" to make it impossible for
+	them to conflict with generated attributes (some of which
+	correspond to Go identifiers).
+-->
+
+	<script>
+	document.ANALYSIS_DATA = null;
+	document.CALLGRAPH = null;
+	</script>
+
+	
+		
+		<div id="short-nav">
+			<dl>
+			<dd><code>import "persistence"</code></dd>
+			</dl>
+			<dl>
+			<dd><a href="index.html#pkg-overview" class="overviewLink">Overview</a></dd>
+			<dd><a href="index.html#pkg-index" class="indexLink">Index</a></dd>
+			
+			
+			</dl>
+		</div>
+		<!-- The package's Name is printed as title by the top-level template -->
+		<div id="pkg-overview" class="toggleVisible">
+			<div class="collapsed">
+				<h2 class="toggleButton" title="Click to show Overview section">Overview ▹</h2>
+			</div>
+			<div class="expanded">
+				<h2 class="toggleButton" title="Click to hide Overview section">Overview ▾</h2>
+				
+				
+			</div>
+		</div>
+
+		<div id="pkg-index" class="toggleVisible">
+		<div class="collapsed">
+			<h2 class="toggleButton" title="Click to show Index section">Index ▹</h2>
+		</div>
+		<div class="expanded">
+			<h2 class="toggleButton" title="Click to hide Index section">Index ▾</h2>
+
+		<!-- Table of contents for API; must be named manual-nav to turn off auto nav. -->
+			<div id="manual-nav">
+			<dl>
+			
+			
+			
+			
+				
+				<dd><a href="index.html#IMongoDbPersistenceOverrides">type IMongoDbPersistenceOverrides</a></dd>
+				
+				
+			
+				
+				<dd><a href="index.html#IdentifiableMongoDbPersistence">type IdentifiableMongoDbPersistence</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#InheritIdentifiableMongoDbPersistence">func InheritIdentifiableMongoDbPersistence[T any, K any](overrides IMongoDbPersistenceOverrides[T], collection string) *IdentifiableMongoDbPersistence[T, K]</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#IdentifiableMongoDbPersistence.Configure">func (c *IdentifiableMongoDbPersistence[T, K]) Configure(ctx context.Context, config *cconf.ConfigParams)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#IdentifiableMongoDbPersistence.Create">func (c *IdentifiableMongoDbPersistence[T, K]) Create(ctx context.Context, correlationId string, item T) (result T, err error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#IdentifiableMongoDbPersistence.DeleteById">func (c *IdentifiableMongoDbPersistence[T, K]) DeleteById(ctx context.Context, correlationId string, id K) (item T, err error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#IdentifiableMongoDbPersistence.DeleteByIds">func (c *IdentifiableMongoDbPersistence[T, K]) DeleteByIds(ctx context.Context, correlationId string, ids []K) error</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#IdentifiableMongoDbPersistence.GetListByIds">func (c *IdentifiableMongoDbPersistence[T, K]) GetListByIds(ctx context.Context, correlationId string, ids []K) (items []T, err error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#IdentifiableMongoDbPersistence.GetOneById">func (c *IdentifiableMongoDbPersistence[T, K]) GetOneById(ctx context.Context, correlationId string, id K) (item T, err error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#IdentifiableMongoDbPersistence.Set">func (c *IdentifiableMongoDbPersistence[T, K]) Set(ctx context.Context, correlationId string, item T) (result T, err error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#IdentifiableMongoDbPersistence.Update">func (c *IdentifiableMongoDbPersistence[T, K]) Update(ctx context.Context, correlationId string, item T) (result T, err error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#IdentifiableMongoDbPersistence.UpdatePartially">func (c *IdentifiableMongoDbPersistence[T, K]) UpdatePartially(ctx context.Context, correlationId string, id K, data cdata.AnyValueMap) (item T, err error)</a></dd>
+				
+			
+				
+				<dd><a href="index.html#MongoDbPersistence">type MongoDbPersistence</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#InheritMongoDbPersistence">func InheritMongoDbPersistence[T any](overrides IMongoDbPersistenceOverrides[T], collection string) *MongoDbPersistence[T]</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MongoDbPersistence.Clear">func (c *MongoDbPersistence[T]) Clear(ctx context.Context, correlationId string) error</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MongoDbPersistence.Close">func (c *MongoDbPersistence[T]) Close(ctx context.Context, correlationId string) error</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MongoDbPersistence.Configure">func (c *MongoDbPersistence[T]) Configure(ctx context.Context, config *cconf.ConfigParams)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MongoDbPersistence.ConvertFromPublic">func (c *MongoDbPersistence[T]) ConvertFromPublic(value T) (map[string]any, error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MongoDbPersistence.ConvertFromPublicPartial">func (c *MongoDbPersistence[T]) ConvertFromPublicPartial(item T) (map[string]any, error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MongoDbPersistence.ConvertToPublic">func (c *MongoDbPersistence[T]) ConvertToPublic(value any) (T, error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MongoDbPersistence.Create">func (c *MongoDbPersistence[T]) Create(ctx context.Context, correlationId string, item T) (result T, err error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MongoDbPersistence.DefineSchema">func (c *MongoDbPersistence[T]) DefineSchema()</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MongoDbPersistence.DeleteByFilter">func (c *MongoDbPersistence[T]) DeleteByFilter(ctx context.Context, correlationId string, filter any) error</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MongoDbPersistence.EnsureIndex">func (c *MongoDbPersistence[T]) EnsureIndex(keys any, options *mongoopt.IndexOptions)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MongoDbPersistence.GetCountByFilter">func (c *MongoDbPersistence[T]) GetCountByFilter(ctx context.Context, correlationId string, filter any) (count int64, err error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MongoDbPersistence.GetListByFilter">func (c *MongoDbPersistence[T]) GetListByFilter(ctx context.Context, correlationId string, filter any, sort any, sel any) (items []T, err error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MongoDbPersistence.GetOneRandom">func (c *MongoDbPersistence[T]) GetOneRandom(ctx context.Context, correlationId string, filter any) (item T, err error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MongoDbPersistence.GetPageByFilter">func (c *MongoDbPersistence[T]) GetPageByFilter(ctx context.Context, correlationId string, filter any, paging cdata.PagingParams, sort any, sel any) (page cdata.DataPage[T], err error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MongoDbPersistence.IsOpen">func (c *MongoDbPersistence[T]) IsOpen() bool</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MongoDbPersistence.IsTerminated">func (c *MongoDbPersistence[T]) IsTerminated() bool</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MongoDbPersistence.Open">func (c *MongoDbPersistence[T]) Open(ctx context.Context, correlationId string) error</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MongoDbPersistence.SetReferences">func (c *MongoDbPersistence[T]) SetReferences(ctx context.Context, references crefer.IReferences)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MongoDbPersistence.UnsetReferences">func (c *MongoDbPersistence[T]) UnsetReferences()</a></dd>
+				
+			
+			
+			</dl>
+			</div><!-- #manual-nav -->
+
+		
+
+		
+			<h3>Package files</h3>
+			<p>
+			<span style="font-size:90%">
+			
+				<a href="http://localhost:6060/src/persistence/IdentifiableMongoDbPersistence.go">IdentifiableMongoDbPersistence.go</a>
+			
+				<a href="http://localhost:6060/src/persistence/MongoDbPersistence.go">MongoDbPersistence.go</a>
+			
+			</span>
+			</p>
+		
+		</div><!-- .expanded -->
+		</div><!-- #pkg-index -->
+
+		
+
+		
+		
+		
+		
+			
+			
+			<h2 id="IMongoDbPersistenceOverrides">type <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=719:941#L11">IMongoDbPersistenceOverrides</a>
+				<a class="permalink" href="index.html#IMongoDbPersistenceOverrides">&#xb6;</a>
+				
+				
+			</h2>
+			
+			<pre>type IMongoDbPersistenceOverrides[T <a href="http://localhost:6060/pkg/builtin/#any">any</a>] interface {
+    DefineSchema()
+    ConvertFromPublic(item T) (map[<a href="http://localhost:6060/pkg/builtin/#string">string</a>]<a href="http://localhost:6060/pkg/builtin/#any">any</a>, <a href="http://localhost:6060/pkg/builtin/#error">error</a>)
+    ConvertFromPublicPartial(item T) (map[<a href="http://localhost:6060/pkg/builtin/#string">string</a>]<a href="http://localhost:6060/pkg/builtin/#any">any</a>, <a href="http://localhost:6060/pkg/builtin/#error">error</a>)
+    ConvertToPublic(item <a href="http://localhost:6060/pkg/builtin/#any">any</a>) (T, <a href="http://localhost:6060/pkg/builtin/#error">error</a>)
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="IdentifiableMongoDbPersistence">type <a href="http://localhost:6060/src/persistence/IdentifiableMongoDbPersistence.go?s=4661:4824#L87">IdentifiableMongoDbPersistence</a>
+				<a class="permalink" href="index.html#IdentifiableMongoDbPersistence">&#xb6;</a>
+				
+				
+			</h2>
+			<p>
+IdentifiableMongoDbPersistence is abstract persistence component that stores data in MongoDB
+and implements a number of CRUD operations over data items with unique ids.
+The data items must implement IIdentifiable interface.
+</p>
+<p>
+In basic scenarios child classes shall only override GetPageByFilter,
+GetListByFilter or DeleteByFilter operations with specific filter function.
+All other operations can be used out of the box.
+</p>
+<p>
+In complex scenarios child classes can implement additional operations by
+accessing c.Collection properties.
+</p>
+<pre>Configuration parameters:
+	- collection:                  (optional) MongoDB collection name
+	- connection(s):
+		- discovery_key:             (optional) a key to retrieve the connection from IDiscovery
+		- host:                      host name or IP address
+		- port:                      port number (default: 27017)
+		- database:                  database name
+		- uri:                       resource URI or connection string with all parameters in it
+	- credential(s):
+		- store_key:                 (optional) a key to retrieve the credentials from ICredentialStore
+		- username:                  (optional) user name
+		- password:                  (optional) user password
+	- options:
+		- max_pool_size:             (optional) maximum connection pool size (default: 2)
+		- keep_alive:                (optional) enable connection keep alive (default: true)
+		- connect_timeout:           (optional) connection timeout in milliseconds (default: 5000)
+		- socket_timeout:            (optional) socket timeout in milliseconds (default: 360000)
+		- auto_reconnect:            (optional) enable auto reconnection (default: true) (not used)
+		- reconnect_interval:        (optional) reconnection interval in milliseconds (default: 1000) (not used)
+		- max_page_size:             (optional) maximum page size (default: 100)
+		- replica_set:               (optional) name of replica set
+		- ssl:                       (optional) enable SSL connection (default: false) (not implements in this release)
+		- auth_source:               (optional) authentication source
+		- debug:                     (optional) enable debug output (default: false). (not used)
+
+References:
+	- *:logger:*:*:1.0           (optional) ILogger components to pass log messages components to pass log messages
+	- *:discovery:*:*:1.0        (optional) IDiscovery services
+	- *:credential-store:*:*:1.0 (optional) Credential stores to resolve credentials
+</pre>
+<p>
+Example:
+</p>
+<pre>type MyIdentifiableMongoDbPersistence struct {
+	*persist.IdentifiableMongoDbPersistence[test_persistence.Dummy, string]
+}
+
+func NewMyIdentifiableMongoDbPersistence() *MyIdentifiableMongoDbPersistence {
+	c := &amp;MyIdentifiableMongoDbPersistence{}
+	c.IdentifiableMongoDbPersistence = persist.InheritIdentifiableMongoDbPersistence[test_persistence.Dummy, string](c, &#34;dummies&#34;)
+	return c
+}
+
+func composeFilter(filter cdata.FilterParams) any {
+	filterObj := bson.M{}
+
+	if name, ok := filter.GetAsNullableString(&#34;name&#34;); ok {
+		filterObj = bson.M{&#34;name&#34;: name}
+	}
+
+	return filterObj
+}
+
+func (c *MyIdentifiableMongoDbPersistence) GetPageByFilter(ctx context.Context, correlationId string, filter cdata.FilterParams, paging cdata.PagingParams) (page cdata.DataPage[test_persistence.Dummy], err error) {
+	return c.IdentifiableMongoDbPersistence.GetPageByFilter(ctx, correlationId, composeFilter(filter), paging,
+		bson.M{&#34;key&#34;: -1}, nil)
+}
+
+func main() {
+	persistence := NewMyIdentifiableMongoDbPersistence()
+	persistence.Configure(context.Background(), config.NewConfigParamsFromTuples(
+		&#34;host&#34;, &#34;localhost&#34;,
+		&#34;port&#34;, 27017,
+	))
+
+	_ = persistence.Open(context.Background(), &#34;123&#34;)
+	page, err := persistence.GetPageByFilter(context.Background(), &#34;123&#34;, *cdata.NewFilterParamsFromTuples(&#34;name&#34;, &#34;ABC&#34;), *cdata.NewEmptyPagingParams())
+	fmt.Println(page) // Result: { id: &#34;1&#34;, name: &#34;ABC&#34; }
+
+	err = persistence.DeleteByFilter(context.Background(), &#34;123&#34;, &#34;1&#34;)
+}
+</pre>
+
+			<pre>type IdentifiableMongoDbPersistence[T <a href="http://localhost:6060/pkg/builtin/#any">any</a>, K <a href="http://localhost:6060/pkg/builtin/#any">any</a>] struct {
+    *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]
+    <span class="comment">// contains filtered or unexported fields</span>
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+				
+				<h3 id="InheritIdentifiableMongoDbPersistence">func <a href="http://localhost:6060/src/persistence/IdentifiableMongoDbPersistence.go?s=5105:5261#L99">InheritIdentifiableMongoDbPersistence</a>
+					<a class="permalink" href="index.html#InheritIdentifiableMongoDbPersistence">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func InheritIdentifiableMongoDbPersistence[T <a href="http://localhost:6060/pkg/builtin/#any">any</a>, K <a href="http://localhost:6060/pkg/builtin/#any">any</a>](overrides <a href="index.html#IMongoDbPersistenceOverrides">IMongoDbPersistenceOverrides</a>[T], collection <a href="http://localhost:6060/pkg/builtin/#string">string</a>) *<a href="index.html#IdentifiableMongoDbPersistence">IdentifiableMongoDbPersistence</a>[T, K]</pre>
+				<p>
+InheritIdentifiableMongoDbPersistence is creates a new instance of the persistence component.
+</p>
+<pre>Parameters:
+	- collection string (optional) a collection name.
+Returns: *IdentifiableMongoDbPersistence[T, K] new created IdentifiableMongoDbPersistence component
+</pre>
+
+				
+				
+			
+
+			
+				
+				<h3 id="IdentifiableMongoDbPersistence.Configure">func (*IdentifiableMongoDbPersistence[T, K]) <a href="http://localhost:6060/src/persistence/IdentifiableMongoDbPersistence.go?s=5717:5822#L115">Configure</a>
+					<a class="permalink" href="index.html#IdentifiableMongoDbPersistence.Configure">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#IdentifiableMongoDbPersistence">IdentifiableMongoDbPersistence</a>[T, K]) Configure(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, config *<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/config/">cconf</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/config/#ConfigParams">ConfigParams</a>)</pre>
+				<p>
+Configure is configures component by passing configuration parameters.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- config  *cconf.ConfigParams configuration parameters to be set.
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="IdentifiableMongoDbPersistence.Create">func (*IdentifiableMongoDbPersistence[T, K]) <a href="http://localhost:6060/src/persistence/IdentifiableMongoDbPersistence.go?s=7864:7992#L174">Create</a>
+					<a class="permalink" href="index.html#IdentifiableMongoDbPersistence.Create">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#IdentifiableMongoDbPersistence">IdentifiableMongoDbPersistence</a>[T, K]) Create(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>,
+    item T) (result T, err <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+				<p>
+Create was creates a data item.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- correlation_id string (optional) transaction id to Trace execution through call chain.
+	- item any an item to be created.
+Returns: result any, err error created item and error, if they are occurred
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="IdentifiableMongoDbPersistence.DeleteById">func (*IdentifiableMongoDbPersistence[T, K]) <a href="http://localhost:6060/src/persistence/IdentifiableMongoDbPersistence.go?s=13399:13527#L360">DeleteById</a>
+					<a class="permalink" href="index.html#IdentifiableMongoDbPersistence.DeleteById">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#IdentifiableMongoDbPersistence">IdentifiableMongoDbPersistence</a>[T, K]) DeleteById(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>,
+    id K) (item T, err <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+				<p>
+DeleteById is deleted a data item by it&#39;s unique id.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- correlation_id string (optional) transaction id to Trace execution through call chain.
+	- id K id of the item to be deleted
+Returns: item T, err error deleted item and error, if they are occurred
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="IdentifiableMongoDbPersistence.DeleteByIds">func (*IdentifiableMongoDbPersistence[T, K]) <a href="http://localhost:6060/src/persistence/IdentifiableMongoDbPersistence.go?s=14358:14476#L393">DeleteByIds</a>
+					<a class="permalink" href="index.html#IdentifiableMongoDbPersistence.DeleteByIds">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#IdentifiableMongoDbPersistence">IdentifiableMongoDbPersistence</a>[T, K]) DeleteByIds(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>,
+    ids []K) <a href="http://localhost:6060/pkg/builtin/#error">error</a></pre>
+				<p>
+DeleteByIds is deletes multiple data items by their unique ids.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- correlationId string (optional) transaction id to Trace execution through call chain.
+	- ids []K ids of data items to be deleted.
+Returns: error or nil for success.
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="IdentifiableMongoDbPersistence.GetListByIds">func (*IdentifiableMongoDbPersistence[T, K]) <a href="http://localhost:6060/src/persistence/IdentifiableMongoDbPersistence.go?s=6329:6465#L127">GetListByIds</a>
+					<a class="permalink" href="index.html#IdentifiableMongoDbPersistence.GetListByIds">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#IdentifiableMongoDbPersistence">IdentifiableMongoDbPersistence</a>[T, K]) GetListByIds(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>,
+    ids []K) (items []T, err <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+				<p>
+GetListByIds is gets a list of data items retrieved by given unique ids.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- correlationId  string (optional) transaction id to Trace execution through call chain.
+	- ids  []K ids of data items to be retrieved
+Returns: items []T, err error a data list and error, if they are occurred.
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="IdentifiableMongoDbPersistence.GetOneById">func (*IdentifiableMongoDbPersistence[T, K]) <a href="http://localhost:6060/src/persistence/IdentifiableMongoDbPersistence.go?s=6917:7045#L143">GetOneById</a>
+					<a class="permalink" href="index.html#IdentifiableMongoDbPersistence.GetOneById">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#IdentifiableMongoDbPersistence">IdentifiableMongoDbPersistence</a>[T, K]) GetOneById(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>,
+    id K) (item T, err <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+				<p>
+GetOneById is gets a data item by its unique id.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- correlationId     (optional) transaction id to Trace execution through call chain.
+	- id                an id of data item to be retrieved.
+Returns: item T, err error a data and error, if they are occurred.
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="IdentifiableMongoDbPersistence.Set">func (*IdentifiableMongoDbPersistence[T, K]) <a href="http://localhost:6060/src/persistence/IdentifiableMongoDbPersistence.go?s=9152:9277#L218">Set</a>
+					<a class="permalink" href="index.html#IdentifiableMongoDbPersistence.Set">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#IdentifiableMongoDbPersistence">IdentifiableMongoDbPersistence</a>[T, K]) Set(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>,
+    item T) (result T, err <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+				<p>
+Set is sets a data item. If the data item exists it updates it,
+otherwise it create a new data item.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- correlation_id string (optional) transaction id to Trace execution through call chain.
+	- item T an item to be set.
+Returns: result any, err error updated item and error, if they occurred
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="IdentifiableMongoDbPersistence.Update">func (*IdentifiableMongoDbPersistence[T, K]) <a href="http://localhost:6060/src/persistence/IdentifiableMongoDbPersistence.go?s=10775:10903#L274">Update</a>
+					<a class="permalink" href="index.html#IdentifiableMongoDbPersistence.Update">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#IdentifiableMongoDbPersistence">IdentifiableMongoDbPersistence</a>[T, K]) Update(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>,
+    item T) (result T, err <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+				<p>
+Update is updates a data item.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- correlation_id string (optional) transaction id to Trace execution through call chain.
+	- item T an item to be updated.
+Returns: result any, err error updated item and error, if they are occurred
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="IdentifiableMongoDbPersistence.UpdatePartially">func (*IdentifiableMongoDbPersistence[T, K]) <a href="http://localhost:6060/src/persistence/IdentifiableMongoDbPersistence.go?s=12139:12296#L319">UpdatePartially</a>
+					<a class="permalink" href="index.html#IdentifiableMongoDbPersistence.UpdatePartially">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#IdentifiableMongoDbPersistence">IdentifiableMongoDbPersistence</a>[T, K]) UpdatePartially(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>,
+    id K, data <a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/data/">cdata</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/data/#AnyValueMap">AnyValueMap</a>) (item T, err <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+				<p>
+UpdatePartially is updates only few selected fields in a data item.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- correlation_id string (optional) transaction id to Trace execution through call chain.
+	- id K an id of data item to be updated.
+	- data cdata.AnyValueMap a map with fields to be updated.
+Returns: item any, err error updated item and error, if they are occurred
+</pre>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="MongoDbPersistence">type <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=5414:6635#L118">MongoDbPersistence</a>
+				<a class="permalink" href="index.html#MongoDbPersistence">&#xb6;</a>
+				
+				
+			</h2>
+			<p>
+MongoDbPersistence abstract persistence component that stores data in MongoDB using plain driver.
+</p>
+<p>
+This is the most basic persistence component that is only
+able to store data items of any type. Specific CRUD operations
+over the data items must be implemented in child classes by
+accessing c.Db or c.Collection properties.
+</p>
+<pre>Configuration parameters:
+	- collection:                  (optional) MongoDB collection name
+	- connection(s):
+		- discovery_key:             (optional) a key to retrieve the connection from IDiscovery
+		- host:                      host name or IP address
+		- port:                      port number (default: 27017)
+		- database:                  database name
+		- uri:                       resource URI or connection string with all parameters in it
+	- credential(s):
+		- store_key:                 (optional) a key to retrieve the credentials from ICredentialStore
+		- username:                  (optional) user name
+		- password:                  (optional) user password
+	- options:
+		- max_pool_size:             (optional) maximum connection pool size (default: 2)
+		- keep_alive:                (optional) enable connection keep alive (default: true)
+		- connect_timeout:           (optional) connection timeout in milliseconds (default: 5000)
+		- socket_timeout:            (optional) socket timeout in milliseconds (default: 360000)
+		- auto_reconnect:            (optional) enable auto reconnection (default: true) (not used)
+		- reconnect_interval:        (optional) reconnection interval in milliseconds (default: 1000) (not used)
+		- max_page_size:             (optional) maximum page size (default: 100)
+		- replica_set:               (optional) name of replica set
+		- ssl:                       (optional) enable SSL connection (default: false) (not implements in this release)
+		- auth_source:               (optional) authentication source
+		- debug:                     (optional) enable debug output (default: false). (not used)
+References:
+	- *:logger:*:*:1.0           (optional) ILogger components to pass log messages
+	- *:discovery:*:*:1.0        (optional) IDiscovery services
+	- *:credential-store:*:*:1.0 (optional) Credential stores to resolve credentials
+</pre>
+<p>
+Example:
+</p>
+<pre>type MyMongoDbPersistence struct {
+	*persistence.MongoDbPersistence[MyData]
+}
+
+func NewMyMongoDbPersistence() *MyMongoDbPersistence {
+	c := &amp;MyMongoDbPersistence{}
+	c.MongoDbPersistence = persistence.InheritMongoDbPersistence[MyData](c, &#34;my_data&#34;)
+	return c
+}
+
+func (c *MyMongoDbPersistence) GetByName(ctx context.Context, correlationId string, name string) (count int64, err error) {
+	return c.MongoDbPersistence.GetCountByFilter(ctx, correlationId, bson.M{&#34;name&#34;: name})
+}
+
+func (c *MyMongoDbPersistence) Set(ctx context.Context, correlationId string,
+	item MyData) (result MyData, err error) {
+	var defaultValue MyData
+
+	newItem, err := c.Overrides.ConvertFromPublic(item)
+	if err != nil {
+		return defaultValue, err
+	}
+
+	id := newItem[&#34;_id&#34;]
+	filter := bson.M{&#34;_id&#34;: id}
+	var options mngoptions.FindOneAndReplaceOptions
+	retDoc := mngoptions.After
+	options.ReturnDocument = &amp;retDoc
+	upsert := true
+	options.Upsert = &amp;upsert
+
+	res := c.Collection.FindOneAndReplace(ctx, filter, newItem, &amp;options)
+	if err := res.Err(); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return result, nil
+		}
+		return result, err
+	}
+
+	c.Logger.Trace(ctx, correlationId, &#34;Set in %s with id = %s&#34;, c.CollectionName, id)
+	var docPointer MyData
+	if err := res.Decode(&amp;docPointer); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return result, nil
+		}
+		return result, err
+	}
+
+	return c.Overrides.ConvertToPublic(docPointer)
+}
+
+func main() {
+	persistence := NewMyMongoDbPersistence()
+	persistence.Configure(context.Background(), config.NewConfigParamsFromTuples(
+		&#34;host&#34;, &#34;localhost&#34;,
+		&#34;port&#34;, 27017,
+	))
+
+	_ = persistence.Open(context.Background(), &#34;123&#34;)
+	persistence.Set(context.Background(), &#34;123&#34;, MyData{Id: &#34;123&#34;, Name: &#34;ABC&#34;})
+	item, err := persistence.GetByName(context.Background(), &#34;123&#34;, &#34;ABC&#34;)
+	fmt.Println(item) // Result: { name: &#34;ABC&#34; }
+}
+</pre>
+
+			<pre>type MongoDbPersistence[T <a href="http://localhost:6060/pkg/builtin/#any">any</a>] struct {
+<span id="MongoDbPersistence.Overrides"></span>    Overrides <a href="index.html#IMongoDbPersistenceOverrides">IMongoDbPersistenceOverrides</a>[T]
+
+    <span class="comment">// The dependency resolver.</span>
+<span id="MongoDbPersistence.DependencyResolver"></span>    DependencyResolver *<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/refer/">crefer</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/refer/#DependencyResolver">DependencyResolver</a>
+    <span class="comment">// The logger.</span>
+<span id="MongoDbPersistence.Logger"></span>    Logger <a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-components-gox/log/">clog</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-components-gox/log/#CompositeLogger">CompositeLogger</a>
+    <span class="comment">// The MongoDB connection component.</span>
+<span id="MongoDbPersistence.Connection"></span>    Connection *<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-mongodb-gox/connect/">conn</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-mongodb-gox/connect/#MongoDbConnection">MongoDbConnection</a>
+    <span class="comment">// The MongoDB connection object.</span>
+<span id="MongoDbPersistence.Client"></span>    Client *<a href="http://localhost:6060/pkg/go.mongodb.org/mongo-driver/mongo/">mongodrv</a>.<a href="http://localhost:6060/pkg/go.mongodb.org/mongo-driver/mongo/#Client">Client</a>
+    <span class="comment">// The MongoDB database name.</span>
+<span id="MongoDbPersistence.DatabaseName"></span>    DatabaseName <a href="http://localhost:6060/pkg/builtin/#string">string</a>
+    <span class="comment">// The MongoDB colleciton object.</span>
+<span id="MongoDbPersistence.CollectionName"></span>    CollectionName <a href="http://localhost:6060/pkg/builtin/#string">string</a>
+    <span class="comment">//  The MongoDb database object.</span>
+<span id="MongoDbPersistence.Db"></span>    Db *<a href="http://localhost:6060/pkg/go.mongodb.org/mongo-driver/mongo/">mongodrv</a>.<a href="http://localhost:6060/pkg/go.mongodb.org/mongo-driver/mongo/#Database">Database</a>
+    <span class="comment">// The MongoDb collection object.</span>
+<span id="MongoDbPersistence.Collection"></span>    Collection *<a href="http://localhost:6060/pkg/go.mongodb.org/mongo-driver/mongo/">mongodrv</a>.<a href="http://localhost:6060/pkg/go.mongodb.org/mongo-driver/mongo/#Collection">Collection</a>
+
+    <span class="comment">// Defines general JSON convertors</span>
+<span id="MongoDbPersistence.JsonConvertor"></span>    JsonConvertor    <a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/convert/">cconv</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/convert/#IJSONEngine">IJSONEngine</a>[T]
+<span id="MongoDbPersistence.JsonMapConvertor"></span>    JsonMapConvertor <a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/convert/">cconv</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/convert/#IJSONEngine">IJSONEngine</a>[map[<a href="http://localhost:6060/pkg/builtin/#string">string</a>]<a href="http://localhost:6060/pkg/builtin/#any">any</a>]
+    <span class="comment">// contains filtered or unexported fields</span>
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+				
+				<h3 id="InheritMongoDbPersistence">func <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=6945:7067#L164">InheritMongoDbPersistence</a>
+					<a class="permalink" href="index.html#InheritMongoDbPersistence">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func InheritMongoDbPersistence[T <a href="http://localhost:6060/pkg/builtin/#any">any</a>](overrides <a href="index.html#IMongoDbPersistenceOverrides">IMongoDbPersistenceOverrides</a>[T], collection <a href="http://localhost:6060/pkg/builtin/#string">string</a>) *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]</pre>
+				<p>
+InheritMongoDbPersistence are creates a new instance of the persistence component.
+</p>
+<pre>Parameters:
+	- overrides IMongoDbPersistenceOverrides overrided mongodb persistence
+	- collection  string a collection name.
+</pre>
+<p>
+Returns: *MongoDbPersistence new created MongoDbPersistence component
+</p>
+
+				
+				
+			
+
+			
+				
+				<h3 id="MongoDbPersistence.Clear">func (*MongoDbPersistence[T]) <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=15401:15487#L439">Clear</a>
+					<a class="permalink" href="index.html#MongoDbPersistence.Clear">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]) Clear(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>) <a href="http://localhost:6060/pkg/builtin/#error">error</a></pre>
+				<p>
+Clear method are clears component state.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- correlationId string (optional) transaction id to trace execution through call chain.
+Returns: error or nil when no errors occurred.
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="MongoDbPersistence.Close">func (*MongoDbPersistence[T]) <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=14587:14673#L407">Close</a>
+					<a class="permalink" href="index.html#MongoDbPersistence.Close">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]) Close(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>) <a href="http://localhost:6060/pkg/builtin/#error">error</a></pre>
+				<p>
+Close methods closes component and frees used resources.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- correlationId string (optional) transaction id to trace execution through call chain.
+Returns: error or nil when no errors occured.
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="MongoDbPersistence.Configure">func (*MongoDbPersistence[T]) <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=8158:8248#L195">Configure</a>
+					<a class="permalink" href="index.html#MongoDbPersistence.Configure">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]) Configure(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, config *<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/config/">cconf</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/config/#ConfigParams">ConfigParams</a>)</pre>
+				<p>
+Configure method is configures component by passing configuration parameters.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- config  *cconf.ConfigParams configuration parameters to be set.
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="MongoDbPersistence.ConvertFromPublic">func (*MongoDbPersistence[T]) <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=10457:10539#L265">ConvertFromPublic</a>
+					<a class="permalink" href="index.html#MongoDbPersistence.ConvertFromPublic">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]) ConvertFromPublic(value T) (map[<a href="http://localhost:6060/pkg/builtin/#string">string</a>]<a href="http://localhost:6060/pkg/builtin/#any">any</a>, <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+				<p>
+ConvertFromPublic method help convert object (map) from public view by replaced &#34;Id&#34; to &#34;_id&#34; field
+</p>
+<pre>Parameters:
+	- item *any converted item
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="MongoDbPersistence.ConvertFromPublicPartial">func (*MongoDbPersistence[T]) <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=11196:11284#L293">ConvertFromPublicPartial</a>
+					<a class="permalink" href="index.html#MongoDbPersistence.ConvertFromPublicPartial">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]) ConvertFromPublicPartial(item T) (map[<a href="http://localhost:6060/pkg/builtin/#string">string</a>]<a href="http://localhost:6060/pkg/builtin/#any">any</a>, <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+				<p>
+ConvertFromPublicPartial method help convert object (map) from public view by replaced &#34;Id&#34; to &#34;_id&#34; field
+</p>
+<pre>Parameters:
+	- item *any converted item
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="MongoDbPersistence.ConvertToPublic">func (*MongoDbPersistence[T]) <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=11478:11547#L301">ConvertToPublic</a>
+					<a class="permalink" href="index.html#MongoDbPersistence.ConvertToPublic">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]) ConvertToPublic(value <a href="http://localhost:6060/pkg/builtin/#any">any</a>) (T, <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+				<p>
+ConvertToPublic method is convert object (map) to public view by replaced &#34;_id&#34; to &#34;Id&#34; field
+</p>
+<pre>Parameters:
+	- item *any converted item
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="MongoDbPersistence.Create">func (*MongoDbPersistence[T]) <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=21734:21845#L644">Create</a>
+					<a class="permalink" href="index.html#MongoDbPersistence.Create">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]) Create(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>, item T) (result T, err <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+				<p>
+Create was creates a data item.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- correlation_id string (optional) transaction id to Trace execution through call chain.
+	- item any an item to be created.
+Returns: result any, err error created item and error, if they are occurred
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="MongoDbPersistence.DefineSchema">func (*MongoDbPersistence[T]) <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=9773:9819#L241">DefineSchema</a>
+					<a class="permalink" href="index.html#MongoDbPersistence.DefineSchema">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]) DefineSchema()</pre>
+				<p>
+DefineSchema for the collection.
+This method shall be overloaded in child classes
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="MongoDbPersistence.DeleteByFilter">func (*MongoDbPersistence[T]) <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=22762:22869#L671">DeleteByFilter</a>
+					<a class="permalink" href="index.html#MongoDbPersistence.DeleteByFilter">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]) DeleteByFilter(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>, filter <a href="http://localhost:6060/pkg/builtin/#any">any</a>) <a href="http://localhost:6060/pkg/builtin/#error">error</a></pre>
+				<p>
+DeleteByFilter is deletes data items that match to a given filter.
+This method shall be called by a func (c *IdentifiableMongoDbPersistence) deleteByFilter method from child class that
+receives FilterParams and converts them into a filter function.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- correlationId  string (optional) transaction id to Trace execution through call chain.
+	- filter any (optional) a filter BSON object.
+Returns: error or nil for success.
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="MongoDbPersistence.EnsureIndex">func (*MongoDbPersistence[T]) <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=10060:10145#L250">EnsureIndex</a>
+					<a class="permalink" href="index.html#MongoDbPersistence.EnsureIndex">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]) EnsureIndex(keys <a href="http://localhost:6060/pkg/builtin/#any">any</a>, options *<a href="http://localhost:6060/pkg/go.mongodb.org/mongo-driver/mongo/options/">mongoopt</a>.<a href="http://localhost:6060/pkg/go.mongodb.org/mongo-driver/mongo/options/#IndexOptions">IndexOptions</a>)</pre>
+				<p>
+EnsureIndex method are adds index definition to create it on opening
+</p>
+<pre>Parameters:
+	- keys any index keys (fields)
+	- options *mongoopt.IndexOptions index options
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="MongoDbPersistence.GetCountByFilter">func (*MongoDbPersistence[T]) <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=23583:23711#L689">GetCountByFilter</a>
+					<a class="permalink" href="index.html#MongoDbPersistence.GetCountByFilter">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]) GetCountByFilter(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>, filter <a href="http://localhost:6060/pkg/builtin/#any">any</a>) (count <a href="http://localhost:6060/pkg/builtin/#int64">int64</a>, err <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+				<p>
+GetCountByFilter is gets a count of data items retrieved by a given filter.
+This method shall be called by a func (c *IdentifiableMongoDbPersistence) GetCountByFilter method from child type that
+receives FilterParams and converts them into a filter function.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- correlationId  string (optional) transaction id to Trace execution through call chain.
+	- filter any
+Returns: count int, err error a data count or error, if they are occurred
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="MongoDbPersistence.GetListByFilter">func (*MongoDbPersistence[T]) <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=19027:19173#L542">GetListByFilter</a>
+					<a class="permalink" href="index.html#MongoDbPersistence.GetListByFilter">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]) GetListByFilter(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>,
+    filter <a href="http://localhost:6060/pkg/builtin/#any">any</a>, sort <a href="http://localhost:6060/pkg/builtin/#any">any</a>, sel <a href="http://localhost:6060/pkg/builtin/#any">any</a>) (items []T, err <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+				<p>
+GetListByFilter is gets a list of data items retrieved by a given filter and sorted according to sort parameters.
+This method shall be called by a func (c *IdentifiableMongoDbPersistence) GetListByFilter method from child type that
+receives FilterParams and converts them into a filter function.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- correlationId string (optional) transaction id to Trace execution through call chain.
+	- filter any (optional) a filter BSON object
+	- sort any (optional) sorting BSON object
+	- select any (optional) projection BSON object
+Returns: items []any, err error data list and error, if they are occurred
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="MongoDbPersistence.GetOneRandom">func (*MongoDbPersistence[T]) <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=20675:20796#L602">GetOneRandom</a>
+					<a class="permalink" href="index.html#MongoDbPersistence.GetOneRandom">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]) GetOneRandom(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>,
+    filter <a href="http://localhost:6060/pkg/builtin/#any">any</a>) (item T, err <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+				<p>
+GetOneRandom is gets a random item from items that match to a given filter.
+This method shall be called by a func (c *IdentifiableMongoDbPersistence) getOneRandom method from child class that
+receives FilterParams and converts them into a filter function.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- correlationId string (optional) transaction id to Trace execution through call chain.
+	- filter any (optional) a filter BSON object
+Returns: item any, err error random item and error, if theq are occured
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="MongoDbPersistence.GetPageByFilter">func (*MongoDbPersistence[T]) <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=16558:16744#L463">GetPageByFilter</a>
+					<a class="permalink" href="index.html#MongoDbPersistence.GetPageByFilter">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]) GetPageByFilter(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>,
+    filter <a href="http://localhost:6060/pkg/builtin/#any">any</a>, paging <a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/data/">cdata</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/data/#PagingParams">PagingParams</a>, sort <a href="http://localhost:6060/pkg/builtin/#any">any</a>, sel <a href="http://localhost:6060/pkg/builtin/#any">any</a>) (page <a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/data/">cdata</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/data/#DataPage">DataPage</a>[T], err <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+				<p>
+GetPageByFilter is gets a page of data items retrieved by a given filter and sorted according to sort parameters.
+This method shall be called by a func (c *IdentifiableMongoDbPersistence) GetPageByFilter method from child type that
+receives FilterParams and converts them into a filter function.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- correlationId  string (optional) transaction id to Trace execution through call chain.
+	- filter any (optional) a filter JSON object
+	- paging cdata.PagingParams (optional) paging parameters
+	- sort any (optional) sorting BSON object
+	- select  any (optional) projection BSON object
+Returns: page cdata.DataPage[T], err error a data page or error, if they are occurred
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="MongoDbPersistence.IsOpen">func (*MongoDbPersistence[T]) <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=12044:12089#L323">IsOpen</a>
+					<a class="permalink" href="index.html#MongoDbPersistence.IsOpen">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]) IsOpen() <a href="http://localhost:6060/pkg/builtin/#bool">bool</a></pre>
+				<p>
+IsOpen method is checks if the component is opened.
+</p>
+<pre>Returns: true if the component has been opened and false otherwise.
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="MongoDbPersistence.IsTerminated">func (*MongoDbPersistence[T]) <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=12261:12312#L330">IsTerminated</a>
+					<a class="permalink" href="index.html#MongoDbPersistence.IsTerminated">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]) IsTerminated() <a href="http://localhost:6060/pkg/builtin/#bool">bool</a></pre>
+				<p>
+IsTerminated checks if the wee need to terminate process before close component.
+</p>
+<pre>Returns: true if you need terminate your processes.
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="MongoDbPersistence.Open">func (*MongoDbPersistence[T]) <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=12676:12761#L348">Open</a>
+					<a class="permalink" href="index.html#MongoDbPersistence.Open">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]) Open(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>) <a href="http://localhost:6060/pkg/builtin/#error">error</a></pre>
+				<p>
+Open method is opens the component.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- correlationId  string (optional) transaction id to trace execution through call chain.
+Returns: error or nil when no errors occured.
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="MongoDbPersistence.SetReferences">func (*MongoDbPersistence[T]) <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=8656:8753#L207">SetReferences</a>
+					<a class="permalink" href="index.html#MongoDbPersistence.SetReferences">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]) SetReferences(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, references <a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/refer/">crefer</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/refer/#IReferences">IReferences</a>)</pre>
+				<p>
+SetReferences method are sets references to dependent components.
+</p>
+<pre>Parameters:
+	- ctx context.Context
+	- references crefer.IReferences references to locate the component dependencies.
+</pre>
+
+				
+				
+				
+			
+				
+				<h3 id="MongoDbPersistence.UnsetReferences">func (*MongoDbPersistence[T]) <a href="http://localhost:6060/src/persistence/MongoDbPersistence.go?s=9322:9371#L226">UnsetReferences</a>
+					<a class="permalink" href="index.html#MongoDbPersistence.UnsetReferences">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MongoDbPersistence">MongoDbPersistence</a>[T]) UnsetReferences()</pre>
+				<p>
+UnsetReferences method is unsets (clears) previously set references to dependent components.
+</p>
+
+				
+				
+				
+			
+		
+	
+
+	
+
+
+
+
+
+
+
+<div id="footer">
+Build version go1.18.7.<br>
+Except as <a href="https://developers.google.com/site-policies#restrictions">noted</a>,
+the content of this page is licensed under the
+Creative Commons Attribution 3.0 License,
+and code is licensed under a <a href="http://localhost:6060/LICENSE">BSD license</a>.<br>
+<a href="https://golang.org/doc/tos.html">Terms of Service</a> |
+<a href="https://www.google.com/intl/en/policies/privacy/">Privacy Policy</a>
+</div>
+
+</div><!-- .container -->
+</div><!-- #page -->
+</body>
+</html>

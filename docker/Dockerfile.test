@@ -2,9 +2,9 @@ FROM golang:1.18
 
 # Set environment variables for Go
 ENV GO111MODULE=on \
-CGO_ENABLED=0 \
-GOOS=linux \
-GOARCH=amd64
+    CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64
 
 # Set a working directory
 WORKDIR /app

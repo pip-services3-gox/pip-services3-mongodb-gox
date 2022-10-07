@@ -1,6 +1,9 @@
 {
   "name": "pip-services3-mongodb-gox",
-  "registry": "github.com/pip-services3-gox",
+  "type": "module",
+  "language": "go",
   "version": "1.0.0",
-  "build": 0
+  "build": 0,
+  "registry": "pipdevs",
+  "artifacts": []
 }

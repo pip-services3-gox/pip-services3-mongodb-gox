@@ -8,3 +8,10 @@ Initial public release
 * **build** factory for creating MongoDB persistence components
 * **connect** instruments for configuring connections to the database
 * **persistence** abstract classes for working with the database
+
+## <a name="1.0.0"></a> 1.0.1 (2022-11-10)
+
+Logic improvements
+
+### Features
+* **connect** business logic improvements in few connection functions

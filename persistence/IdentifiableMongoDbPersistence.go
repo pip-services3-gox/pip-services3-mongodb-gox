@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	cconf "github.com/pip-services3-gox/pip-services3-commons-gox/config"
-	cconv "github.com/pip-services3-gox/pip-services3-commons-gox/convert"
 	cdata "github.com/pip-services3-gox/pip-services3-commons-gox/data"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -191,8 +190,7 @@ func (c *IdentifiableMongoDbPersistence[T, K]) Create(ctx context.Context, corre
 
 	// Auto generate unique id
 	val, ok := newItem["_id"]
-	notEmpty, _ := cconv.BooleanConverter.ToNullableBoolean(val)
-	if (!ok || !notEmpty) && c._autoGenerateId {
+	if (!ok || val == nil || val == "") && c._autoGenerateId {
 		newItem["_id"] = cdata.IdGenerator.NextLong()
 	}
 
@@ -230,8 +228,7 @@ func (c *IdentifiableMongoDbPersistence[T, K]) Set(ctx context.Context, correlat
 
 	// Auto unique generate id
 	val, ok := newItem["_id"]
-	notEmpty, _ := cconv.BooleanConverter.ToNullableBoolean(val)
-	if (!ok || !notEmpty) && c._autoGenerateId {
+	if (!ok || val == nil || val == "") && c._autoGenerateId {
 		newItem["_id"] = cdata.IdGenerator.NextLong()
 	}
 

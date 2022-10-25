@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/jinzhu/copier"
 	cconf "github.com/pip-services3-gox/pip-services3-commons-gox/config"
 	cconv "github.com/pip-services3-gox/pip-services3-commons-gox/convert"
 	cdata "github.com/pip-services3-gox/pip-services3-commons-gox/data"
@@ -190,12 +189,7 @@ func (c *IdentifiableMongoDbPersistence[T, K]) Create(ctx context.Context, corre
 		return defaultValue, err
 	}
 
-	// Assign unique id
-	newItem["_id"] = newItem["id"]
-	copier.Copy(newItem["_id"], newItem["id"])
-	delete(newItem, "id")
-
-	// Auto generate id
+	// Auto generate unique id
 	val, ok := newItem["_id"]
 	notEmpty, _ := cconv.BooleanConverter.ToNullableBoolean(val)
 	if (!ok || !notEmpty) && c._autoGenerateId {
@@ -234,12 +228,7 @@ func (c *IdentifiableMongoDbPersistence[T, K]) Set(ctx context.Context, correlat
 		return defaultValue, err
 	}
 
-	// Assign unique id
-	newItem["_id"] = newItem["id"]
-	copier.Copy(newItem["_id"], newItem["id"])
-	delete(newItem, "id")
-
-	// Auto generate id
+	// Auto unique generate id
 	val, ok := newItem["_id"]
 	notEmpty, _ := cconv.BooleanConverter.ToNullableBoolean(val)
 	if (!ok || !notEmpty) && c._autoGenerateId {

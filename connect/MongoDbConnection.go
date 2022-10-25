@@ -201,15 +201,15 @@ func (c *MongoDbConnection) Close(ctx context.Context, correlationId string) err
 	}
 
 	err := c.Connection.Disconnect(ctx)
-	c.Connection = nil
-	c.Db = nil
-	c.DatabaseName = ""
 
 	if err != nil {
 		return cerror.NewConnectionError(correlationId, "DISCONNECT_FAILED", "Disconnect from mongodb failed: ").WithCause(err)
 	}
 
 	c.Logger.Debug(ctx, correlationId, "Disconnected from mongodb database %s", c.DatabaseName)
+	c.Connection = nil
+	c.Db = nil
+	c.DatabaseName = ""
 
 	return err
 }

@@ -2,13 +2,14 @@ package connect
 
 import (
 	"context"
+	"strconv"
+
 	cconf "github.com/pip-services3-gox/pip-services3-commons-gox/config"
 	cdata "github.com/pip-services3-gox/pip-services3-commons-gox/data"
 	cerr "github.com/pip-services3-gox/pip-services3-commons-gox/errors"
 	crefer "github.com/pip-services3-gox/pip-services3-commons-gox/refer"
 	"github.com/pip-services3-gox/pip-services3-components-gox/auth"
 	ccon "github.com/pip-services3-gox/pip-services3-components-gox/connect"
-	"strconv"
 )
 
 // MongoDbConnectionResolver a helper struct  that resolves MongoDB connection and credential parameters,
@@ -101,17 +102,20 @@ func (c *MongoDbConnectionResolver) validateConnections(correlationId string, co
 }
 
 func (c *MongoDbConnectionResolver) composeUri(connections []*ccon.ConnectionParams, credential *auth.CredentialParams) string {
-	// If there is a uri then return it immediately
+	// Define hosts
+	hosts := ""
+	// Define database
+	database := ""
+	// Define additional parameters
+	consConf := cdata.NewEmptyStringValueMap()
+
 	for _, connection := range connections {
 		uri := connection.Uri()
+		// If there is a uri then return it immediately
 		if uri != "" {
 			return uri
 		}
-	}
 
-	// Define hosts
-	var hosts = ""
-	for _, connection := range connections {
 		host := connection.Host()
 		port := connection.Port()
 
@@ -120,17 +124,18 @@ func (c *MongoDbConnectionResolver) composeUri(connections []*ccon.ConnectionPar
 		}
 		if port != 0 {
 			hosts += host + ":" + strconv.Itoa(port)
+		} else {
+			hosts += host
 		}
 
-	}
-
-	// Define database
-	database := ""
-	for _, connection := range connections {
+		// Take database name from the first connection that has it
 		if database == "" {
 			database = connection.GetAsString("database")
 		}
+
+		consConf.Append(connection.Value())
 	}
+
 	if len(database) > 0 {
 		database = "/" + database
 	}
@@ -147,11 +152,6 @@ func (c *MongoDbConnectionResolver) composeUri(connections []*ccon.ConnectionPar
 				auth = username + "@"
 			}
 		}
-	}
-	// Define additional parameters
-	consConf := cdata.NewEmptyStringValueMap()
-	for _, v := range connections {
-		consConf.Append(v.Value())
 	}
 	var options *cconf.ConfigParams
 	if credential != nil {

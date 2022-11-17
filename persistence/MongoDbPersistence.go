@@ -102,7 +102,7 @@ type IMongoDbPersistenceOverrides[T any] interface {
 //		}
 //
 //		c.Logger.Trace(ctx, correlationId, "Set in %s with id = %s", c.CollectionName, id)
-//		var docPointer MyData
+//		var docPointer map[string]any
 //		if err := res.Decode(&docPointer); err != nil {
 //			if errors.Is(err, mongo.ErrNoDocuments) {
 //				return result, nil
@@ -509,7 +509,7 @@ func (c *MongoDbPersistence[T]) GetPageByFilter(ctx context.Context, correlation
 				NewError("query terminated").
 				WithCorrelationId(correlationId)
 		}
-		var docPointer T
+		var docPointer map[string]any
 
 		curErr := cursor.Decode(&docPointer)
 
@@ -581,7 +581,7 @@ func (c *MongoDbPersistence[T]) GetListByFilter(ctx context.Context, correlation
 				NewError("query terminated").
 				WithCorrelationId(correlationId)
 		}
-		var docPointer T
+		var docPointer map[string]any
 		curErr := cursor.Decode(&docPointer)
 		if curErr != nil {
 			continue
@@ -634,7 +634,7 @@ func (c *MongoDbPersistence[T]) GetOneRandom(ctx context.Context, correlationId 
 	}
 	defer cursor.Close(ctx)
 
-	var docPointer T
+	var docPointer map[string]any
 	cursor.Next(ctx)
 	err = cursor.Decode(&docPointer)
 	if err != nil {

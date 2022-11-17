@@ -2,9 +2,10 @@ package test_persistence
 
 import (
 	"context"
+	"testing"
+
 	cdata "github.com/pip-services3-gox/pip-services3-commons-gox/data"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 type DummyRefPersistenceFixture struct {
@@ -71,7 +72,7 @@ func (c *DummyRefPersistenceFixture) TestCrudOperations(t *testing.T) {
 	assert.Equal(t, dummy1.Content, result.Content)
 
 	// Partially update the dummy
-	updateMap := *cdata.NewAnyValueMapFromTuples("Content", "Partially Updated Content 1")
+	updateMap := *cdata.NewAnyValueMapFromTuples("content", "Partially Updated Content 1")
 	result, err = c.persistence.UpdatePartially(context.Background(), "", dummy1.Id, updateMap)
 	if err != nil {
 		t.Errorf("UpdatePartially method error %v", err)

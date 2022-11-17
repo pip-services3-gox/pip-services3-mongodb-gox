@@ -4,10 +4,10 @@ go 1.18
 
 require (
 	github.com/jinzhu/copier v0.3.5
-	github.com/pip-services3-gox/pip-services3-commons-gox v1.0.7
+	github.com/pip-services3-gox/pip-services3-commons-gox v1.0.8
 	github.com/pip-services3-gox/pip-services3-components-gox v1.0.7
-	github.com/stretchr/testify v1.8.0
-	go.mongodb.org/mongo-driver v1.10.3
+	github.com/stretchr/testify v1.8.1
+	go.mongodb.org/mongo-driver v1.11.0
 )
 
 require (

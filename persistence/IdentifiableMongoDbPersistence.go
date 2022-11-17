@@ -152,7 +152,7 @@ func (c *IdentifiableMongoDbPersistence[T, K]) GetOneById(ctx context.Context, c
 	id K) (item T, err error) {
 
 	filter := bson.M{"_id": id}
-	var docPointer T
+	var docPointer map[string]any
 
 	res := c.Collection.FindOne(ctx, filter)
 	if err := res.Err(); err != nil {
@@ -249,7 +249,7 @@ func (c *IdentifiableMongoDbPersistence[T, K]) Set(ctx context.Context, correlat
 	}
 
 	c.Logger.Trace(ctx, correlationId, "Set in %s with id = %s", c.CollectionName, id)
-	var docPointer T
+	var docPointer map[string]any
 	if err := res.Decode(&docPointer); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return result, nil
@@ -293,7 +293,7 @@ func (c *IdentifiableMongoDbPersistence[T, K]) Update(ctx context.Context, corre
 
 	c.Logger.Trace(ctx, correlationId, "Updated in %s with id = %s", c.CollectionName, id)
 
-	var docPointer T
+	var docPointer map[string]any
 	if err := res.Decode(&docPointer); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return result, nil
@@ -335,7 +335,7 @@ func (c *IdentifiableMongoDbPersistence[T, K]) UpdatePartially(ctx context.Conte
 	}
 	c.Logger.Trace(ctx, correlationId, "Updated partially in %s with id = %s", c.Collection, id)
 
-	var docPointer T
+	var docPointer map[string]any
 	if err := res.Decode(&docPointer); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return item, nil
@@ -368,7 +368,7 @@ func (c *IdentifiableMongoDbPersistence[T, K]) DeleteById(ctx context.Context, c
 
 	c.Logger.Trace(ctx, correlationId, "Deleted from %s with id = %s", c.CollectionName, id)
 
-	var docPointer T
+	var docPointer map[string]any
 	if err := res.Decode(&docPointer); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return item, nil

@@ -14,6 +14,7 @@ import (
 	crefer "github.com/pip-services3-gox/pip-services3-commons-gox/refer"
 	clog "github.com/pip-services3-gox/pip-services3-components-gox/log"
 	conn "github.com/pip-services3-gox/pip-services3-mongodb-gox/connect"
+	"go.mongodb.org/mongo-driver/bson"
 	mongodrv "go.mongodb.org/mongo-driver/mongo"
 	mongoopt "go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -273,27 +274,35 @@ func (c *MongoDbPersistence[T]) EnsureIndex(keys any, options *mongoopt.IndexOpt
 //	Parameters:
 //		- item *any converted item
 func (c *MongoDbPersistence[T]) ConvertFromPublic(value T) (map[string]any, error) {
-	buf, toJsonErr := cconv.JsonConverter.ToJson(value)
-	if toJsonErr != nil {
-		return nil, toJsonErr
+	buf, toBsonErr := bson.Marshal(value)
+	if toBsonErr != nil {
+		return nil, toBsonErr
 	}
 
-	convertedItem, fromJsonErr := c.JsonMapConvertor.FromJson(buf)
+	var item map[string]any
 
-	item := make(map[string]any, len(convertedItem))
-
-	// all keys to lower case
-	for k, v := range convertedItem {
-		item[strings.ToLower(k)] = v
+	fromBsonErr := bson.Unmarshal(buf, &item)
+	if fromBsonErr != nil {
+		return nil, fromBsonErr
 	}
 
-	if _, ok := item["id"]; ok {
-		item["_id"] = item["id"]
-		copier.Copy(item["_id"], item["id"])
-		delete(item, "id")
+	if _, ok := any(value).(map[string]any); ok {
+
+		// all keys to lower case
+		_buf := make(map[string]any, 0)
+		for k, v := range item {
+			_buf[strings.ToLower(k)] = v
+		}
+		item = _buf
+
+		if _, ok := item["id"]; ok {
+			item["_id"] = item["id"]
+			copier.Copy(item["_id"], item["id"])
+			delete(item, "id")
+		}
 	}
 
-	return item, fromJsonErr
+	return item, nil
 }
 
 // ConvertFromPublicPartial method help convert object (map) from public view by replaced "Id" to "_id" field
@@ -309,22 +318,24 @@ func (c *MongoDbPersistence[T]) ConvertFromPublicPartial(item T) (map[string]any
 //	Parameters:
 //		- item *any converted item
 func (c *MongoDbPersistence[T]) ConvertToPublic(value any) (T, error) {
-	var defaultValue T
+	var item T
 
-	if m, ok := value.(map[string]any); ok {
+	_, itemOk := any(item).(map[string]any)
+
+	if m, ok := value.(map[string]any); ok && itemOk {
 		m["id"] = m["_id"]
 		copier.Copy(m["id"], m["_id"])
 		delete(m, "_id")
 	}
 
-	jsonBuf, toJsonErr := cconv.JsonConverter.ToJson(value)
-	if toJsonErr != nil {
-		return defaultValue, toJsonErr
+	bsonBuf, toBsonErr := bson.Marshal(value)
+	if toBsonErr != nil {
+		return item, toBsonErr
 	}
 
-	item, fromJsonErr := c.JsonConvertor.FromJson(jsonBuf)
+	fromBsonErr := bson.Unmarshal(bsonBuf, &item)
 
-	return item, fromJsonErr
+	return item, fromBsonErr
 }
 
 // IsOpen method is checks if the component is opened.
@@ -509,18 +520,14 @@ func (c *MongoDbPersistence[T]) GetPageByFilter(ctx context.Context, correlation
 				NewError("query terminated").
 				WithCorrelationId(correlationId)
 		}
-		var docPointer map[string]any
+		var item T
 
-		curErr := cursor.Decode(&docPointer)
+		curErr := cursor.Decode(&item)
 
 		if curErr != nil {
 			continue
 		}
 
-		item, err := c.Overrides.ConvertToPublic(docPointer)
-		if err != nil {
-			return page, err
-		}
 		items = append(items, item)
 	}
 	if items != nil {

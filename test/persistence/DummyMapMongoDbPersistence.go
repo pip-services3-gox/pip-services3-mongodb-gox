@@ -23,10 +23,10 @@ func (c *DummyMapMongoDbPersistence) GetPageByFilter(ctx context.Context, correl
 	filterObj := bson.M{}
 
 	if key, ok := filter.GetAsNullableString("Key"); ok {
-		filterObj = bson.M{"key": key}
+		filterObj = bson.M{"Key": key}
 	}
 
-	sorting := bson.M{"key": -1}
+	sorting := bson.M{"Key": -1}
 
 	return c.IdentifiableMongoDbPersistence.GetPageByFilter(ctx, correlationId, filterObj, paging,
 		sorting, nil)

@@ -3,7 +3,6 @@ package persistence
 import (
 	"context"
 	"math/rand"
-	"strings"
 	"time"
 
 	"github.com/jinzhu/copier"
@@ -287,18 +286,10 @@ func (c *MongoDbPersistence[T]) ConvertFromPublic(value T) (map[string]any, erro
 	}
 
 	if _, ok := any(value).(map[string]any); ok {
-
-		// all keys to lower case
-		_buf := make(map[string]any, 0)
-		for k, v := range item {
-			_buf[strings.ToLower(k)] = v
-		}
-		item = _buf
-
-		if _, ok := item["id"]; ok {
-			item["_id"] = item["id"]
-			copier.Copy(item["_id"], item["id"])
-			delete(item, "id")
+		if _, ok := item["Id"]; ok {
+			item["_id"] = item["Id"]
+			copier.Copy(item["_id"], item["Id"])
+			delete(item, "Id")
 		}
 	}
 
@@ -323,8 +314,8 @@ func (c *MongoDbPersistence[T]) ConvertToPublic(value any) (T, error) {
 	_, itemOk := any(item).(map[string]any)
 
 	if m, ok := value.(map[string]any); ok && itemOk {
-		m["id"] = m["_id"]
-		copier.Copy(m["id"], m["_id"])
+		m["Id"] = m["_id"]
+		copier.Copy(m["Id"], m["_id"])
 		delete(m, "_id")
 	}
 
